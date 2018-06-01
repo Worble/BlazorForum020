@@ -1,0 +1,51 @@
+﻿@page "/{Board}/{Thread}"
+@inherits ForumAppComponent
+@inject HttpClient Http
+
+<BoardsNav />
+
+@if (State.CurrentBoard?.CurrentThread?.Posts == null)
+{
+    <div class="loading loading-lg"></div>
+}
+else
+{ 
+    <div class="container grid-xl">
+        <PostForm ViewType="View.Post" />
+
+        <div class="columns">
+            <PostView Post="State.CurrentBoard.CurrentThread" />
+            <div class="column col-12 divider"></div>
+            @foreach (var post in State.CurrentBoard.CurrentThread.Posts)
+            {
+                <PostView Post="post" />
+                <div class="column col-12 divider"></div>
+            }
+            <div class="column col-12">
+                <a href=@RoutePaths.Threads(State.CurrentBoard.NameShort)>Back to threads</a>
+            </div>
+        </div>
+    </div>
+}
+
+@functions
+{
+    [Parameter]
+    string Board { get; set; }
+
+    [Parameter]
+    string Thread { get; set; }
+
+    int ThreadId { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (int.TryParse(Thread, out var threadId))
+        {
+            ThreadId = threadId;
+            bool clear = Board != State.CurrentBoard?.NameShort || threadId != State.CurrentBoard?.CurrentThread?.Id;
+            await ActionCreators.GetPosts(Store.Dispatch, Http, Board, threadId, clear);
+        }
+    }
+
+}

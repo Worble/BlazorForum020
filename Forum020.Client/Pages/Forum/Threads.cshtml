@@ -1,0 +1,41 @@
+﻿@page "/{Board}"
+@inherits ForumAppComponent
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+
+<BoardsNav/>
+
+@if (State.CurrentBoard?.Threads == null)
+{
+    <div class="loading loading-lg"></div>
+}
+else
+{
+    <div class="container grid-xl">
+        <div class="columns">
+            <div class="column col-12 text-center">
+                <h1>Browsing @State.CurrentBoard.Name</h1>
+            </div>
+        </div>
+        <PostForm ViewType="View.Thread" />
+        <div class="columns">
+            @foreach (var thread in State.CurrentBoard.Threads)
+            {
+                <PostView Post="thread" />
+                <div class="column col-12"><a href=@RoutePaths.Posts(State.CurrentBoard.NameShort, thread.Id)>View Thread</a></div>
+                <div class="column col-12 divider"></div>
+            }
+        </div>
+    </div>
+}
+@functions
+{
+    [Parameter]
+    private string Board { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        bool clear = State.CurrentBoard == null || Board != State.CurrentBoard.NameShort;
+        await ActionCreators.GetThreads(Store.Dispatch, Http, Board, clear);
+    }
+}
