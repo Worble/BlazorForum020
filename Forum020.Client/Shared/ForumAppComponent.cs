@@ -1,6 +1,5 @@
 ﻿using BlazorRedux;
 using Forum020.Client.Redux;
-using System;
 
 namespace Forum020.Client.Shared
 {
@@ -14,4 +13,11 @@ namespace Forum020.Client.Shared
         Thread,
         Post
     }
+
+    public enum ThreadView
+    {
+        Standard,
+        Catalogue
+    }
+
 }

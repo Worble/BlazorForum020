@@ -1,0 +1,51 @@
+﻿@inherits ForumAppComponent
+@inject HttpClient Http
+
+<div class="column mt-2 @FormatView" id=@Post.Id>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                @Post.DateCreated.ToUniversalTime()
+                <a href=@PostLink>No.</a> 
+                <a class="c-hand" onclick=@AddQuote>#@Post.Id</a>
+            </div>
+            @if (Post.ImageUrl != null)
+            {
+                <div class="card-subtitle text-grey">
+                    <a href="@Post.ImageUrl" target="_blank">@Post.ImageUrl.Split('/').Last()</a>
+                </div>
+            }
+        </div>
+        <div class="card-body">
+            <a href="@Post.ImageUrl" target="_blank">
+                <img src="@Post.ThumbnailUrl" class="img-responsive float-left" />
+            </a>
+            <p>@Post.Content</p>
+        </div>
+        @if (ViewType == View.Thread)
+        {
+            <div class="card-footer">
+                <a href=@RoutePaths.Posts(State.CurrentBoard.NameShort, Post.Id)>View Thread</a>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    [Parameter]
+    PostDTO Post { get; set; }
+
+    [Parameter]
+    View ViewType { get; set; }
+
+    string FormatView => (ViewType == View.Thread && State.ThreadViewType == ThreadView.Catalogue ? "col-4 col-lg-6 col-sm-12" : "col-12");
+
+    string PostLink => (Post.IsOp ? RoutePaths.Posts(State.CurrentBoard.NameShort, Post.Id) : RoutePaths.Posts(State.CurrentBoard.NameShort, Post.ThreadId.Value) + '#' + Post.Id);
+
+    void AddQuote() => Dispatch(new AddQuoteAction() { PostId = Post.Id.ToString() });
+
+    protected override void OnInit()
+    {
+        Dispatch(new ClearTextAction());
+    }
+}

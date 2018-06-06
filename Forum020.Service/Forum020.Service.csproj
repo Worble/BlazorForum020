@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.Aspnetcore.http" Version="2.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.0-preview2-final" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.0.3" />
-    <PackageReference Include="Npgsql" Version="3.2.7" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0004" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Hosting.Abstractions">
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.hosting.abstractions\2.1.0\lib\netstandard2.0\Microsoft.AspNetCore.Hosting.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNetCore.Http.Features">
       <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.features\2.1.0-preview2-final\lib\netstandard2.0\Microsoft.AspNetCore.Http.Features.dll</HintPath>
     </Reference>

@@ -12,14 +12,11 @@ else
 { 
     <div class="container grid-xl">
         <PostForm ViewType="View.Post" />
-
         <div class="columns">
-            <PostView Post="State.CurrentBoard.CurrentThread" />
-            <div class="column col-12 divider"></div>
+            <PostView Post="State.CurrentBoard.CurrentThread" ViewType="View.Post" />
             @foreach (var post in State.CurrentBoard.CurrentThread.Posts)
             {
-                <PostView Post="post" />
-                <div class="column col-12 divider"></div>
+                <PostView ViewType="View.Post" Post="post" />
             }
             <div class="column col-12">
                 <a href=@RoutePaths.Threads(State.CurrentBoard.NameShort)>Back to threads</a>

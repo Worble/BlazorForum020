@@ -16,6 +16,9 @@ namespace Forum020.Data.Entities
         public string Content { get; set; }
         public DateTime? BumpDate { get; set; }
         public bool IsArchived { get; set; }
+        public string ImageUrl { get; set; }
+        public string ThumbnailUrl { get; set; }
+        public string ImageChecksum { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
     }

@@ -6,18 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="7.6.0" />
     <PackageReference Include="lib.aspnetcore.serversentevents" Version="1.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.0-preview2-final" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.3.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.0.2" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.0.2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Forum020.Client\Forum020.Client.csproj" />
-    <ProjectReference Include="..\Forum020.Data\Forum020.Data.csproj" />
-    <ProjectReference Include="..\Forum020.Domain\Forum020.Domain.csproj" />
     <ProjectReference Include="..\Forum020.Service\Forum020.Service.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

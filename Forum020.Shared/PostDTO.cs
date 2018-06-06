@@ -6,7 +6,7 @@ namespace Forum020.Shared
     public class PostDTO : BaseDTO
     {
         public BoardDTO Board { get; set; }
-        public int? BoardId { get; set; }
+        public int BoardId { get; set; }
 
         public IEnumerable<PostDTO> Posts { get; set; }
 
@@ -17,5 +17,9 @@ namespace Forum020.Shared
         public string Content { get; set; }
         public DateTime? BumpDate { get; set; }
         public bool IsArchived { get; set; }
+        public string Image { get; set; }
+        public string ImageUrl { get; set; }
+        public string ThumbnailUrl { get; set; }
+        public string ImageChecksum { get; set; }
     }
 }

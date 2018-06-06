@@ -1,0 +1,76 @@
+﻿@inherits ForumAppComponent
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+@using Microsoft.AspNetCore.Blazor.Browser.Interop
+
+<div class="columns">
+    <div class="column col-8 col-lg-12 col-mx-auto">
+        <div class="columns ">
+            <div class="column col-12 divider text-center" data_content=@Title></div>
+            <div class="column form-group">
+                <textarea id="form-text" class="form-input" bind-value-onchange="State.Content"></textarea>
+            </div>
+        </div>
+        <div class="columns mt-2">
+            <div class="column">
+                <label for="file-upload" class="form-label c-hand">Upload image: </label>
+                <input id="file-upload" type="file" accept="image/*" onchange=@ReadFile class="form-control c-hand" />
+                @*<input id="image-input" type="hidden" />*@
+            </div>
+            <div class="column">
+                <img id="image" alt="Embedded Image" src="" style="max-height:200px;max-width:200px;" class="img-responsive" />
+            </div>
+            <div class="column">
+                <button id="submit" class="btn btn-primary float-right" disabled=@ButtonDisabled onclick=@OnClick>Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    [Parameter]
+    View ViewType { get; set; }
+
+    bool ButtonDisabled { get; set; } = false;
+
+    string Title => (ViewType == View.Thread ? "New Thread" : "New Post");
+
+    string Text { get; set; }
+
+    public async void OnClick()
+    {
+        ButtonDisabled = true;
+        string image = RegisteredFunction.Invoke<string>("readImageText", true);
+        switch (ViewType)
+        {
+            case View.Thread:
+                await ActionCreators.PostThread(
+                    Store.Dispatch,
+                    Http,
+                    State.CurrentBoard.NameShort,
+                    new PostDTO() { Content = State.Content, Image = image }
+                    );
+                Dispatch(new ClearTextAction());
+                UriHelper.NavigateTo("/" + State.CurrentBoard.NameShort + "/" + State.CurrentBoard.CurrentThread.Id);
+                break;
+
+            case View.Post:
+                await ActionCreators.PostPost(
+                    Store.Dispatch,
+                    Http,
+                    State.CurrentBoard.NameShort,
+                    State.CurrentBoard.CurrentThread.Id,
+                    new PostDTO() { Content = State.Content, Image = image }
+                    );
+                Dispatch(new ClearTextAction());
+                ButtonDisabled = false;
+                StateHasChanged();
+                break;
+        }
+    }
+
+    public void ReadFile()
+    {
+        RegisteredFunction.Invoke<bool>("readFile", true);
+    }
+}

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -57,8 +58,18 @@ namespace Forum020.Server
                 {
                     "text/event-stream",
                     MediaTypeNames.Application.Octet,
-                    WasmMediaTypeNames.Application.Wasm,
+                    //WasmMediaTypeNames.Application.Wasm,
                 });
+            });
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                        builder.AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                        );
             });
 
             services.AddServerSentEvents();
@@ -67,9 +78,15 @@ namespace Forum020.Server
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new CorsAuthorizationFilterFactory("AllowAllOrigins"));
+            });
+
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IBoardService, BoardService>();
             services.AddTransient<IPostService, PostService>();
+            services.AddTransient<IImageService, ImageService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
@@ -99,7 +116,7 @@ namespace Forum020.Server
                 routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");
             });
 
-            app.UseBlazor<Client.Program>();
+            //app.UseBlazor<Client.Program>();
         }
     }
 }

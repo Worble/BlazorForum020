@@ -28,7 +28,6 @@ namespace Forum020.Data
 
             //Post
             builder.Entity<Post>().HasMany(e => e.Posts).WithOne(e => e.Thread);
-            builder.Entity<Post>().Property(e => e.Content).IsRequired();
             builder.Entity<Post>().HasIndex(e => new { e.IdEffective, e.BoardId }).IsUnique();
             builder.Entity<Post>().Property(e => e.IdEffective).IsRequired();
             builder.Entity<Post>().Property(e => e.IdEffective).ValueGeneratedOnAdd();
@@ -36,7 +35,7 @@ namespace Forum020.Data
 
             //Config
             builder.Entity<Config>().Property(e => e.MaximumReplyCount).HasDefaultValue(100);
-            builder.Entity<Config>().Property(e => e.MaximumThreadCount).HasDefaultValue(10);
+            builder.Entity<Config>().Property(e => e.MaximumThreadCount).HasDefaultValue(12);
         }
 
         public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))

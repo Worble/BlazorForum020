@@ -2,6 +2,7 @@
 @inherits ForumAppComponent
 @inject HttpClient Http
 
+
 @if (State.Boards == null)
 {
     <div class="loading loading-lg"></div>
@@ -13,8 +14,6 @@ else
             <div class="column col-12 text-center">
                 <h1>Welcome to Blaze</h1>
             </div>
-        </div>
-        <div class="columns">
             <div class="column col-12"><h2>Boards:</h2></div>
         </div>
         <div class="columns">
@@ -30,8 +29,8 @@ else
 
 @functions
 {
-    protected override async Task OnInitAsync()
-    {
-        await ActionCreators.GetBoards(Store.Dispatch, Http);
-    }
+protected override async Task OnInitAsync()
+{
+    await ActionCreators.GetBoards(Store.Dispatch, Http);
+}
 }

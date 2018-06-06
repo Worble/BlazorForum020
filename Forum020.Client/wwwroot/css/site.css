@@ -1,3 +1,7 @@
 ﻿textarea.form-input{
     transition: unset;
 }
+
+#form-text {
+    height: 100px;
+}

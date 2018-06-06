@@ -37,7 +37,10 @@ namespace Forum020.Domain.Repositories
                         DateCreated = y.DateCreated,
                         DateEdited = y.DateEdited,
                         Id = y.IdEffective,
-                        IsOp = y.IsOp
+                        IsOp = y.IsOp,
+                        BoardId = y.BoardId,
+                        ImageUrl = y.ImageUrl,
+                        ThumbnailUrl = y.ThumbnailUrl
                     })               
             })
             .FirstOrDefaultAsync(e => e.NameShort == boardName);
@@ -55,12 +58,15 @@ namespace Forum020.Domain.Repositories
                 CurrentThread = e.Threads
                     .Select(y => new PostDTO()
                     {
+                        BoardId = y.BoardId,
                         Content = y.Content,
                         BumpDate = y.BumpDate,
                         DateCreated = y.DateCreated,
                         DateEdited = y.DateEdited,
                         Id = y.IdEffective,
                         IsOp = y.IsOp,
+                        ImageUrl = y.ImageUrl,
+                        ThumbnailUrl = y.ThumbnailUrl,
                         Posts = y.Posts
                             .OrderBy(x => x.DateCreated)
                             .Select(x => new PostDTO()
@@ -70,7 +76,11 @@ namespace Forum020.Domain.Repositories
                                 DateCreated = x.DateCreated,
                                 DateEdited = x.DateEdited,
                                 Id = x.IdEffective,
-                                IsOp = x.IsOp
+                                IsOp = x.IsOp,
+                                ThreadId = y.IdEffective,
+                                BoardId = x.BoardId,
+                                ImageUrl = x.ImageUrl,
+                                ThumbnailUrl = x.ThumbnailUrl
                             })
                     })
                     .FirstOrDefault(y => y.Id == threadId)
@@ -86,6 +96,9 @@ namespace Forum020.Domain.Repositories
                 Content = thread.Content,
                 Board = board,
                 IsOp = true,
+                ImageChecksum = thread.ImageChecksum,
+                ImageUrl = thread.ImageUrl,
+                ThumbnailUrl = thread.ThumbnailUrl
             };
 
             var entity = _context.Posts.Add(post).Entity;
@@ -111,7 +124,10 @@ namespace Forum020.Domain.Repositories
                 Content = post.Content,
                 Board = thread.Board,
                 IsOp = false,
-                Thread = thread
+                Thread = thread,
+                ImageChecksum = post.ImageChecksum,
+                ImageUrl = post.ImageUrl,
+                ThumbnailUrl = post.ThumbnailUrl
             };
 
             if (thread.Posts.Count() < thread.Board.Config.MaximumReplyCount)
@@ -141,7 +157,7 @@ namespace Forum020.Domain.Repositories
             //this is to ensure that if for some reason we ever lower the maximum thread
             //count of a board that it will automatically cull the threads until it gets
             //down to the required amount
-            if (count > board.Config.MaximumThreadCount)
+            if (count >= board.Config.MaximumThreadCount)
             {
                 for (int i = 0; i <= count - board.Config.MaximumThreadCount; i++)
                 {
@@ -149,6 +165,33 @@ namespace Forum020.Domain.Repositories
                     _context.Posts.Update(threads[i]);
                 }
             }
+        }
+
+        public async Task<bool> IsChecksumUnique(string checksum, string boardName, int threadId)
+        {
+            var board = await _context.Boards.Select(e => new BoardDTO()
+            {
+                NameShort = boardName,
+                CurrentThread = e.Threads.Select(y => new PostDTO(){ 
+                    Id = y.IdEffective,
+                    ImageChecksum = y.ImageChecksum,
+                    Posts = y.Posts.Where(x => x.ImageChecksum == checksum)
+                        .Select(x => new PostDTO()
+                        {
+                            ImageChecksum = x.ImageChecksum
+                        })
+                    }).FirstOrDefault(y => y.Id == threadId)
+            }).FirstOrDefaultAsync(e => e.NameShort == boardName);
+
+            if (board?.CurrentThread == null) throw new NullReferenceException();
+
+            return board.CurrentThread.ImageChecksum == checksum || board.CurrentThread.Posts.Any() ? false : true;
+
+            return !(await _context.Posts
+                .Where(e => e.ImageChecksum == checksum 
+                    && e.Board.NameShort == boardName
+                    && (e.IdEffective == threadId || e.ThreadId == threadId))
+                .AnyAsync());
         }
     }
 }

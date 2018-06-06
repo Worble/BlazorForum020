@@ -3,15 +3,17 @@ using Forum020.Shared;
 using System.Net.Http;
 using Microsoft.AspNetCore.Blazor;
 using System.Threading.Tasks;
+using System;
+using System.Runtime.Serialization;
 
 namespace Forum020.Client.Redux
 {
     public class ActionCreators
     {
+        const string API = "http://localhost:8607/api/";
         public static async Task GetBoards(Dispatcher<IAction> dispatch, HttpClient http)
         {
-            var boards = await http.GetJsonAsync<BoardDTO[]>(
-            "/api/boards");
+            var boards = await http.GetJsonAsync<BoardDTO[]>(API + "boards");
             dispatch(new GetBoardsAction
             {
                 Boards = boards
@@ -25,7 +27,7 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearThreadsAction());
             }
 
-            var board = await http.GetJsonAsync<BoardDTO>("/api/" + boardName);
+            var board = await http.GetJsonAsync<BoardDTO>(API + boardName);
 
             dispatch(new GetThreadsAction
             {
@@ -40,7 +42,7 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearPostsAction());
             }
 
-            var board = await http.GetJsonAsync<BoardDTO>("/api/" + boardName + "/" + threadId);
+            var board = await http.GetJsonAsync<BoardDTO>(API + boardName + "/" + threadId);
 
             dispatch(new GetPostsAction
             {
@@ -50,7 +52,7 @@ namespace Forum020.Client.Redux
 
         public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread)
         {
-            var board = await http.PostJsonAsync<BoardDTO>("/api/" + boardName, thread);
+            var board = await http.PostJsonAsync<BoardDTO>(API + boardName, thread);
 
             dispatch(new GetPostsAction
             {
@@ -61,12 +63,18 @@ namespace Forum020.Client.Redux
 
         public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post)
         {
-            var board = await http.PostJsonAsync<BoardDTO>("/api/" + boardName + "/" + thread, post);
-
-            dispatch(new GetPostsAction
+            try
             {
-                Board = board
-            });
+                var board = await http.PostJsonAsync<BoardDTO>(API + boardName + "/" + thread, post);
+                dispatch(new GetPostsAction
+                {
+                    Board = board
+                });
+            }
+            catch (SerializationException e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

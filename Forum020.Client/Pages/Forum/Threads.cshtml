@@ -19,11 +19,14 @@ else
         </div>
         <PostForm ViewType="View.Thread" />
         <div class="columns">
+            <div class="column col-12">
+                <button class="btn btn-link" onclick="@ChangeFormat">@ChangeFormatText view</button>
+            </div>
+        </div>
+        <div class="columns">
             @foreach (var thread in State.CurrentBoard.Threads)
             {
-                <PostView Post="thread" />
-                <div class="column col-12"><a href=@RoutePaths.Posts(State.CurrentBoard.NameShort, thread.Id)>View Thread</a></div>
-                <div class="column col-12 divider"></div>
+                <PostView ViewType="View.Thread" Post="thread" />
             }
         </div>
     </div>
@@ -33,9 +36,17 @@ else
     [Parameter]
     private string Board { get; set; }
 
+    string ChangeFormatText => (State.ThreadViewType == ThreadView.Catalogue ? "Standard" : "Catalogue");
+
     protected override async Task OnParametersSetAsync()
     {
         bool clear = State.CurrentBoard == null || Board != State.CurrentBoard.NameShort;
         await ActionCreators.GetThreads(Store.Dispatch, Http, Board, clear);
+    }
+
+    private void ChangeFormat()
+    {
+        var view = (State.ThreadViewType == ThreadView.Catalogue ? ThreadView.Standard : ThreadView.Catalogue);
+        Dispatch(new ChangeThreadViewTypeAction() { ThreadViewType = view});
     }
 }

@@ -3,9 +3,7 @@ using System;
 using Forum020.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Forum020.Server.Migrations
 {
@@ -17,7 +15,7 @@ namespace Forum020.Server.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.1.0-preview2-30571");
+                .HasAnnotation("ProductVersion", "2.1.0-rtm-30799");
 
             modelBuilder.Entity("Forum020.Data.Entities.Board", b =>
                 {
@@ -65,7 +63,7 @@ namespace Forum020.Server.Migrations
 
                     b.Property<int>("MaximumThreadCount")
                         .ValueGeneratedOnAdd()
-                        .HasDefaultValue(10);
+                        .HasDefaultValue(12);
 
                     b.HasKey("Id");
 
@@ -81,8 +79,7 @@ namespace Forum020.Server.Migrations
 
                     b.Property<DateTime?>("BumpDate");
 
-                    b.Property<string>("Content")
-                        .IsRequired();
+                    b.Property<string>("Content");
 
                     b.Property<DateTime>("DateCreated");
 
@@ -91,11 +88,17 @@ namespace Forum020.Server.Migrations
                     b.Property<int>("IdEffective")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("ImageChecksum");
+
+                    b.Property<string>("ImageUrl");
+
                     b.Property<bool>("IsArchived");
 
                     b.Property<bool>("IsOp");
 
                     b.Property<int?>("ThreadId");
+
+                    b.Property<string>("ThumbnailUrl");
 
                     b.HasKey("Id");
 
