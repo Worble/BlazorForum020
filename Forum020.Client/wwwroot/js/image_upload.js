@@ -5,34 +5,18 @@
     var button = document.getElementById('submit');
     var reader = new FileReader();
 
-    function readFile(file) {
-        return new Promise((resolve, reject) => {
-            button.disabled = true;
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            resolve("");
+        }
+        else if (file.size > 3 * 1000 * 1024) {
+            resolve("Error: File too large (3MB limit)");
+        }
+        else {        
             reader.onload = (e) => {
                 resolve(e.target.result);
             };
             reader.readAsDataURL(file);
-        })
-    }
-
-    if (file) {
-        readFile(file).then(result => {
-            preview.src = result;
-            button.disabled = false;
-        });
-    };
-
-    return true;
-});
-
-Blazor.registerFunction('readImageText', () => {
-    var input = document.getElementById('image-input');
-    var preview = document.getElementById('image');
-    var file = document.getElementById('file-upload');
-
-    var result = preview.src;
-
-    preview.src = file.value = null;
-
-    return result;
+        }
+    });
 });

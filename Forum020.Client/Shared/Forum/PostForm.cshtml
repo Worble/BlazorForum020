@@ -6,26 +6,42 @@
 <div class="columns">
     <div class="column col-8 col-lg-12 col-mx-auto">
         <div class="columns ">
-            <div class="column col-12 divider text-center" data_content=@Title></div>
+            <div class="column col-12 divider text-center" data-content=@Title></div>
             <div class="column form-group">
                 <textarea id="form-text" class="form-input" bind-value-onchange="State.Content"></textarea>
             </div>
         </div>
+        @if (!string.IsNullOrEmpty(Error))
+        {
         <div class="columns mt-2">
             <div class="column">
-                <label for="file-upload" class="form-label c-hand">Upload image: </label>
-                <input id="file-upload" type="file" accept="image/*" onchange=@ReadFile class="form-control c-hand" />
+                <div class="toast toast-error">
+                    <button onclick=@ToastClear class="btn btn-clear float-right"></button>
+                    @Error
+                </div>
+            </div>
+        </div>
+        }
+        <div class="columns mt-2">
+            <div class="column">
+                <label for="file-upload" class="c-hand btn float-left">Upload image: </label>
+                <input id="file-upload" type="file" accept="image/*" onchange=@ReadFile class="inputfile" />
                 @*<input id="image-input" type="hidden" />*@
             </div>
-            <div class="column">
-                <img id="image" alt="Embedded Image" src="" style="max-height:200px;max-width:200px;" class="img-responsive" />
+            <div class="column text-center">
+                @if (!string.IsNullOrEmpty(File))
+                {
+                    <img id="image" alt="Embedded Image" src=@File style="max-height:200px;max-width:200px;" />
+                }
             </div>
             <div class="column">
-                <button id="submit" class="btn btn-primary float-right" disabled=@ButtonDisabled onclick=@OnClick>Submit</button>
+                <button id="submit" class="btn btn-primary float-right" disabled=@ButtonDisabled onclick=@OnClickSubmit>Submit</button>
             </div>
         </div>
     </div>
 </div>
+
+
 
 @functions {
     [Parameter]
@@ -37,10 +53,16 @@
 
     string Text { get; set; }
 
-    public async void OnClick()
+    string File { get; set; }
+
+    string Error { get; set; } = "";
+
+    public void ToastClear() => Error = string.Empty;
+
+    public async void OnClickSubmit()
     {
         ButtonDisabled = true;
-        string image = RegisteredFunction.Invoke<string>("readImageText", true);
+        //string image = RegisteredFunction.Invoke<string>("readImageText", true);
         switch (ViewType)
         {
             case View.Thread:
@@ -48,7 +70,7 @@
                     Store.Dispatch,
                     Http,
                     State.CurrentBoard.NameShort,
-                    new PostDTO() { Content = State.Content, Image = image }
+                    new PostDTO() { Content = State.Content, Image = File }
                     );
                 Dispatch(new ClearTextAction());
                 UriHelper.NavigateTo("/" + State.CurrentBoard.NameShort + "/" + State.CurrentBoard.CurrentThread.Id);
@@ -60,7 +82,7 @@
                     Http,
                     State.CurrentBoard.NameShort,
                     State.CurrentBoard.CurrentThread.Id,
-                    new PostDTO() { Content = State.Content, Image = image }
+                    new PostDTO() { Content = State.Content, Image = File }
                     );
                 Dispatch(new ClearTextAction());
                 ButtonDisabled = false;
@@ -69,8 +91,19 @@
         }
     }
 
-    public void ReadFile()
+    public async Task ReadFile()
     {
-        RegisteredFunction.Invoke<bool>("readFile", true);
+        Error = string.Empty;
+        ButtonDisabled = true;
+        var result = await RegisteredFunction.InvokeAsync<string>("readFile", true);
+        ButtonDisabled = false;
+        if (result.Contains("Error: "))
+        {
+            Error = result;
+        }
+        else
+        {
+            File = result;
+        }
     }
 }

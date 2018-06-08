@@ -2,7 +2,7 @@
 @inject HttpClient Http
 
 <div class="column mt-2 @FormatView" id=@Post.Id>
-    <div class="card">
+    <div class="card" style="height:100%">
         <div class="card-header">
             <div class="card-title">
                 @Post.DateCreated.ToUniversalTime()
@@ -16,7 +16,7 @@
                 </div>
             }
         </div>
-        <div class="card-body">
+        <div class="card-body" style="height:100%">
             <a href="@Post.ImageUrl" target="_blank">
                 <img src="@Post.ThumbnailUrl" class="img-responsive float-left" />
             </a>
