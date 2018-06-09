@@ -38,6 +38,12 @@ namespace Forum020.Server.Controllers
             return await _postService.GetAllPostsForThread(boardName, threadId);
         }
 
+        [HttpGet("get-link/{postId}")]
+        public async Task<ActionResult<string>> GetLink(string boardName, int postId)
+        {
+            return await _postService.GetLinkForPost(boardName, postId);
+        }
+
         [HttpPost]
         public async Task<ActionResult<BoardDTO>> PostThread(string boardName, [FromBody]PostDTO thread)
         {
