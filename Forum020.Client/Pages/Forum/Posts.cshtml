@@ -37,6 +37,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        Dispatch(new ClearTextAction());
         if (int.TryParse(Thread, out var threadId))
         {
             ThreadId = threadId;
@@ -44,5 +45,4 @@ else
             await ActionCreators.GetPosts(Store.Dispatch, Http, Board, threadId, clear);
         }
     }
-
 }

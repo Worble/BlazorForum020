@@ -40,7 +40,8 @@ namespace Forum020.Domain.Repositories
                         IsOp = y.IsOp,
                         BoardId = y.BoardId,
                         ImageUrl = y.ImageUrl,
-                        ThumbnailUrl = y.ThumbnailUrl
+                        ThumbnailUrl = y.ThumbnailUrl,
+                        IsArchived = y.IsArchived
                     })               
             })
             .FirstOrDefaultAsync(e => e.NameShort == boardName);
@@ -67,6 +68,7 @@ namespace Forum020.Domain.Repositories
                         IsOp = y.IsOp,
                         ImageUrl = y.ImageUrl,
                         ThumbnailUrl = y.ThumbnailUrl,
+                        IsArchived = y.IsArchived,
                         Posts = y.Posts
                             .OrderBy(x => x.DateCreated)
                             .Select(x => new PostDTO()
@@ -114,7 +116,7 @@ namespace Forum020.Domain.Repositories
                 .Include(e => e.Board)
                     .ThenInclude(e => e.Config)
                 .Include(e => e.Posts)
-                .FirstOrDefaultAsync(e => e.Board.NameShort == boardName && e.IdEffective == threadId);
+                .FirstOrDefaultAsync(e => e.Board.NameShort == boardName && e.IdEffective == threadId && !e.IsArchived);
 
             if(thread == null) return null;
 
@@ -192,6 +194,25 @@ namespace Forum020.Domain.Repositories
                     && e.Board.NameShort == boardName
                     && (e.IdEffective == threadId || e.ThreadId == threadId))
                 .AnyAsync());
+        }
+
+        public async Task<BoardDTO> GetPost(string boardName, int postId)
+        {
+            return await _context.Boards.Select(e => new BoardDTO()
+            {
+                Id = e.Id,
+                DateCreated = e.DateCreated,
+                DateEdited = e.DateEdited,
+                Name = e.Name,
+                NameShort = e.NameShort,
+                CurrentThread = e.Threads.Select(y => new PostDTO()
+                {
+                    Id = y.IdEffective,
+                    IsOp = y.IsOp,
+                    ThreadId = y.ThreadId,
+                    BoardId = y.BoardId,
+                }).FirstOrDefault(y => y.Id == postId && !y.IsArchived)
+            }).FirstOrDefaultAsync(e => e.NameShort == boardName);
         }
     }
 }

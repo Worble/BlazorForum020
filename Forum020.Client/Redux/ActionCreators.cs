@@ -10,10 +10,9 @@ namespace Forum020.Client.Redux
 {
     public class ActionCreators
     {
-        const string API = "http://localhost:8607/api/";
         public static async Task GetBoards(Dispatcher<IAction> dispatch, HttpClient http)
         {
-            var boards = await http.GetJsonAsync<BoardDTO[]>(API + "boards");
+            var boards = await http.GetJsonAsync<BoardDTO[]>(RoutePaths.Api + "boards");
             dispatch(new GetBoardsAction
             {
                 Boards = boards
@@ -27,7 +26,7 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearThreadsAction());
             }
 
-            var board = await http.GetJsonAsync<BoardDTO>(API + boardName);
+            var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName);
 
             dispatch(new GetThreadsAction
             {
@@ -42,7 +41,7 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearPostsAction());
             }
 
-            var board = await http.GetJsonAsync<BoardDTO>(API + boardName + "/" + threadId);
+            var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + threadId);
 
             dispatch(new GetPostsAction
             {
@@ -52,7 +51,7 @@ namespace Forum020.Client.Redux
 
         public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread)
         {
-            var board = await http.PostJsonAsync<BoardDTO>(API + boardName, thread);
+            var board = await http.PostJsonAsync<BoardDTO>(RoutePaths.Api + boardName, thread);
 
             dispatch(new GetPostsAction
             {
@@ -65,7 +64,7 @@ namespace Forum020.Client.Redux
         {
             try
             {
-                var board = await http.PostJsonAsync<BoardDTO>(API + boardName + "/" + thread, post);
+                var board = await http.PostJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + thread, post);
                 dispatch(new GetPostsAction
                 {
                     Board = board

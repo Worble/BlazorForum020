@@ -40,6 +40,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        Dispatch(new ClearTextAction());
         bool clear = State.CurrentBoard == null || Board != State.CurrentBoard.NameShort;
         await ActionCreators.GetThreads(Store.Dispatch, Http, Board, clear);
     }

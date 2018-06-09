@@ -28,6 +28,8 @@ namespace Forum020.Client.Redux
                     return content += ">>" + a.PostId + "\n";
                 case ClearTextAction _:
                     return string.Empty;
+                case UpdateTextAction a:
+                    return a.Text;
                 default: return content;
             }
         }

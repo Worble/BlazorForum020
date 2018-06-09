@@ -40,3 +40,11 @@ footer {
     position: absolute;
     z-index: -1;
 }
+
+.quote {
+    color: #5cb6b6;
+}
+
+.text-link{
+    white-space:normal;
+}

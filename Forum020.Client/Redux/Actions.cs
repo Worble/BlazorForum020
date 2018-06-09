@@ -35,4 +35,9 @@ namespace Forum020.Client.Redux
     }
 
     public class ClearTextAction : IAction { }
+
+    public class UpdateTextAction : IAction
+    {
+        public string Text { get; set; }
+    }
 }

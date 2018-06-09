@@ -11,5 +11,6 @@ namespace Forum020.Domain.Repositories.Interfaces
         Task<Post> PostThread(string boardName, PostDTO thread);
         Task<Post> PostPost(string boardName, int threadId, PostDTO post);
         Task<bool> IsChecksumUnique(string checksum, string boardName, int threadId);
+        Task<BoardDTO> GetPost(string boardName, int postId);
     }
 }

@@ -8,7 +8,7 @@
         <div class="columns ">
             <div class="column col-12 divider text-center" data-content=@Title></div>
             <div class="column form-group">
-                <textarea id="form-text" class="form-input" bind-value-onchange="State.Content"></textarea>
+                <textarea id="form-text" class="form-input" bind-value-onchange="Text"></textarea>
             </div>
         </div>
         @if (!string.IsNullOrEmpty(Error))
@@ -51,7 +51,7 @@
 
     string Title => (ViewType == View.Thread ? "New Thread" : "New Post");
 
-    string Text { get; set; }
+    string Text { get { return State.Content; } set { Dispatch(new UpdateTextAction() { Text = value }); } }
 
     string File { get; set; }
 
@@ -62,7 +62,6 @@
     public async void OnClickSubmit()
     {
         ButtonDisabled = true;
-        //string image = RegisteredFunction.Invoke<string>("readImageText", true);
         switch (ViewType)
         {
             case View.Thread:

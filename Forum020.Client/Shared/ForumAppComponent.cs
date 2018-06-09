@@ -5,7 +5,6 @@ namespace Forum020.Client.Shared
 {
     public class ForumAppComponent : ReduxComponent<ForumState, IAction>
     {
-
     }
 
     public enum View
@@ -19,5 +18,7 @@ namespace Forum020.Client.Shared
         Standard,
         Catalogue
     }
+
+
 
 }

@@ -29,4 +29,14 @@
     <ProjectReference Include="..\Forum020.Shared\Forum020.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Shared\Forum\PostLink.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Shared\Forum\Post\" />
+  </ItemGroup>
+
 </Project>
