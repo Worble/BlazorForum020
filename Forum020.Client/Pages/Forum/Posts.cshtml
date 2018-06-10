@@ -1,5 +1,6 @@
 ﻿@page "/{Board}/{Thread}"
 @inherits ForumAppComponent
+@implements IDisposable
 @inject HttpClient Http
 
 <BoardsNav />
@@ -14,7 +15,7 @@ else
         <PostForm ViewType="View.Post" />
         <div class="columns">
             <div class="column col-12">
-                <button class="btn btn-link float-right" onclick="@UpdateNow">@Timer</button>
+                <button class="btn btn-link float-right" onclick="@UpdateNow">@Time</button>
             </div>
         </div>
         <div class="columns">
@@ -40,7 +41,9 @@ else
 
     int ThreadId { get; set; }
 
-    int Timer { get; set; } = 30;
+    System.Threading.Timer Timer { get; set; }
+
+    int Time { get; set; } = 30;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -49,7 +52,7 @@ else
         TimeSpan startTimeSpan = TimeSpan.Zero;
         TimeSpan periodTimeSpan = TimeSpan.FromMilliseconds(1000);
 
-        System.Threading.Timer timer = new System.Threading.Timer(async (e) =>
+        Timer = new System.Threading.Timer(async (e) =>
         {
             await IncrementTimer();
         }, null, startTimeSpan, periodTimeSpan);
@@ -57,11 +60,11 @@ else
 
     private async Task IncrementTimer()
     {
-        Timer -= 1;
-        if(Timer < 1)
+        Time -= 1;
+        if(Time < 1)
         {
             await GetPosts();
-            Timer = 30;
+            Time = 30;
         }
         StateHasChanged();
     }
@@ -69,7 +72,7 @@ else
     private async Task UpdateNow()
     {
         await GetPosts();
-        Timer = 30;
+        Time = 30;
         StateHasChanged();
     }
 
@@ -81,5 +84,11 @@ else
             bool clear = Board != State.CurrentBoard?.NameShort || threadId != State.CurrentBoard?.CurrentThread?.Id;
             await ActionCreators.GetPosts(Store.Dispatch, Http, Board, threadId, clear);
         }
+    }
+
+    public new void Dispose()
+    {
+        this.Timer.Dispose();
+        base.Dispose();
     }
 }
