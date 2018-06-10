@@ -27,6 +27,9 @@ namespace Forum020.Service.Services
         public PostDTO SaveImage(PostDTO post, IHostingEnvironment env, HttpRequest req)
         {
             var regex = Regex.Match(post.Image, @"data:image/(?<type>.+?);base64,(?<data>.+)");
+
+            if (!regex.Success) return post;
+
             var base64 = regex.Groups["data"].Value;
             var binData = Convert.FromBase64String(base64);
 

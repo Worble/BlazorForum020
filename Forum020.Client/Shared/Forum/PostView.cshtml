@@ -20,9 +20,8 @@
         </div>
         <div class="card-body" style="height:100%;">
             <a href="@Post.ImageUrl" target="_blank">
-                <img src="@Post.ThumbnailUrl" class="img-responsive float-left" />
+                <img src="@Post.ThumbnailUrl" class="img-responsive float-left mr-2" />
             </a>
-            @*<p style="white-space:pre-line;">@Post.Content</p>*@
             @if (!string.IsNullOrEmpty(Post.Content))
             {
                 @PostContent
@@ -52,7 +51,7 @@
 
     private Microsoft.AspNetCore.Blazor.RenderFragment PostContent;
 
-    protected  override void OnInit()
+    protected override void OnInit()
     {
         int sequence = 1;
         PostContent = builder =>
@@ -61,8 +60,10 @@
             sequence++;
             builder.AddAttribute(sequence, "style", "white-space:pre-line;");
             sequence++;
-            var lines = Regex.Split(Post.Content, "\n");
-            string line;
+            var lines = Post.Content.Split(
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.None
+            ); string line;
             for (int i = 0; i < lines.Length; i++)
             {
                 line = lines[i];
@@ -83,8 +84,8 @@
                 if (!(i + 1 == lines.Length))
                 {
                     builder.AddContent(sequence, "\n");
+                    sequence++;
                 }
-                sequence++;
             }
             builder.CloseElement(); // closing p
         };
@@ -95,21 +96,27 @@
         var words = line.Split(null);
         foreach (var word in words)
         {
-            if (Regex.IsMatch(word, @"^>>>\/[A-Za-z]+\/[0-9]+\/?$")) //board redirect
+            var regex = Regex.Match(word, @"^>>>\/(?<board>[A-Za-z]+)\/(?<id>[0-9]+)\/?$");
+            if (regex.Success) //board redirect
             {
-                builder.OpenElement(sequence, "a");
-                sequence++;
-                builder.AddAttribute(sequence, "href", "#");
+                var board = regex.Groups["board"].Value;
+                var id = regex.Groups["id"].Value;
                 builder.OpenElement(sequence, "span");
                 sequence++;
                 builder.AddAttribute(sequence, "class", "text-link");
                 sequence++;
-                builder.AddContent(sequence, word);
+                builder.OpenComponent<PostLink>(sequence);
                 sequence++;
+                builder.AddAttribute(sequence, "Content", word);
+                sequence++;
+                builder.AddAttribute(sequence, "PostId", id);
+                sequence++;
+                builder.AddAttribute(sequence, "BoardName", board);
+                sequence++;
+                builder.CloseComponent(); //closing PostLink
+                builder.CloseElement(); //closing span
                 builder.AddContent(sequence, " ");
                 sequence++;
-                builder.CloseElement(); //closing span
-                builder.CloseElement(); //closing a
             }
             else if (Regex.IsMatch(word, @"^>>[0-9]+$")) //quote
             {
@@ -139,11 +146,5 @@
                 sequence++;
             }
         }
-    }
-
-    private string GetLinkUrl(string boardName, int postId)
-    {
-        return "fuckit";
-        //return Task.Run<string>(() => Http.GetJsonAsync<string>(RoutePaths.Api + boardName + "/get-link/" + postId)).Result;
     }
 }

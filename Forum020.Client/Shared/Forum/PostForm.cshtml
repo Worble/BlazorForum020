@@ -59,6 +59,11 @@
 
     public void ToastClear() => Error = string.Empty;
 
+    protected override void OnInit()
+    {
+        Dispatch(new ClearTextAction());
+    }
+
     public async void OnClickSubmit()
     {
         ButtonDisabled = true;

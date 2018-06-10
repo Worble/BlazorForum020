@@ -18,7 +18,4 @@ namespace Forum020.Client.Shared
         Standard,
         Catalogue
     }
-
-
-
 }

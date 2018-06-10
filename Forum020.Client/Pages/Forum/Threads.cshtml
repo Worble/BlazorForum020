@@ -9,6 +9,25 @@
 {
     <div class="loading loading-lg"></div>
 }
+else if (State.CurrentBoard != null && State.CurrentBoard.Threads.Count() < 1)
+{
+    <div class="container grid-xl">
+        <div class="columns">
+            <div class="column col-12 text-center">
+                <h1>Browsing @State.CurrentBoard.Name</h1>
+            </div>
+        </div>
+        <PostForm ViewType="View.Thread" />
+        <div class="columns">
+            <div class="column mt-2 pt-2 col-12">
+                <div class="empty" style="height:100%">
+                    <p class="empty-title h5">It looks like there's nothing here</p>
+                    <p class="empty-subtitle">Be the first the start a thread.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 else
 {
     <div class="container grid-xl">
@@ -40,7 +59,6 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        Dispatch(new ClearTextAction());
         bool clear = State.CurrentBoard == null || Board != State.CurrentBoard.NameShort;
         await ActionCreators.GetThreads(Store.Dispatch, Http, Board, clear);
     }

@@ -13,6 +13,11 @@ else
     <div class="container grid-xl">
         <PostForm ViewType="View.Post" />
         <div class="columns">
+            <div class="column col-12">
+                <button class="btn btn-link float-right" onclick="@UpdateNow">@Timer</button>
+            </div>
+        </div>
+        <div class="columns">
             <PostView Post="State.CurrentBoard.CurrentThread" ViewType="View.Post" />
             @foreach (var post in State.CurrentBoard.CurrentThread.Posts)
             {
@@ -35,9 +40,41 @@ else
 
     int ThreadId { get; set; }
 
+    int Timer { get; set; } = 30;
+
     protected override async Task OnParametersSetAsync()
     {
-        Dispatch(new ClearTextAction());
+        await GetPosts();
+
+        TimeSpan startTimeSpan = TimeSpan.Zero;
+        TimeSpan periodTimeSpan = TimeSpan.FromMilliseconds(1000);
+
+        System.Threading.Timer timer = new System.Threading.Timer(async (e) =>
+        {
+            await IncrementTimer();
+        }, null, startTimeSpan, periodTimeSpan);
+    }
+
+    private async Task IncrementTimer()
+    {
+        Timer -= 1;
+        if(Timer < 1)
+        {
+            await GetPosts();
+            Timer = 30;
+        }
+        StateHasChanged();
+    }
+
+    private async Task UpdateNow()
+    {
+        await GetPosts();
+        Timer = 30;
+        StateHasChanged();
+    }
+
+    private async Task GetPosts()
+    {
         if (int.TryParse(Thread, out var threadId))
         {
             ThreadId = threadId;

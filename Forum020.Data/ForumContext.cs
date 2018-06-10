@@ -17,9 +17,9 @@ namespace Forum020.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             //Board
-            builder.Entity<Board>().HasMany(e => e.Threads).WithOne(e => e.Board);
+            builder.Entity<Board>().HasMany(e => e.Threads).WithOne(e => e.Board).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Board>().HasOne(e => e.Config).WithOne()
-                .HasForeignKey<Board>(e => e.ConfigId).IsRequired();
+                .HasForeignKey<Board>(e => e.ConfigId).IsRequired().OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Board>().Property(e => e.Name).IsRequired();
             builder.Entity<Board>().HasIndex(e => e.Name).IsUnique();
             builder.Entity<Board>().Property(e => e.NameShort).IsRequired();
@@ -27,7 +27,7 @@ namespace Forum020.Data
             builder.Entity<Board>().Property(e => e.ConfigId).IsRequired();
 
             //Post
-            builder.Entity<Post>().HasMany(e => e.Posts).WithOne(e => e.Thread);
+            builder.Entity<Post>().HasMany(e => e.Posts).WithOne(e => e.Thread).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Post>().HasIndex(e => new { e.IdEffective, e.BoardId }).IsUnique();
             builder.Entity<Post>().Property(e => e.IdEffective).IsRequired();
             builder.Entity<Post>().Property(e => e.IdEffective).ValueGeneratedOnAdd();
