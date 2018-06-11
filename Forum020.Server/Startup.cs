@@ -65,14 +65,13 @@ namespace Forum020.Server
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
-                    builder =>
-                        builder.AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                        );
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                    );
             });
 
-            services.AddServerSentEvents();
+            //services.AddServerSentEvents();
             services.AddServerSentEvents<INotificationsServerSentEventsService, NotificationsServerSentEventsService>();
             services.AddNotificationsService(Configuration);
 

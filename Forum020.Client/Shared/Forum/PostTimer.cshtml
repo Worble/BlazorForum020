@@ -1,0 +1,61 @@
+﻿@inherits ForumAppComponent
+@implements IDisposable
+@inject HttpClient Http
+
+<button class="btn btn-link float-right" onclick="@UpdateNow">@Time</button>
+
+@functions{
+    [Parameter]
+    string Board { get; set; }
+
+    [Parameter]
+    string Thread { get; set; }
+
+    System.Threading.Timer Timer { get; set; }
+
+    int Time { get; set; } = 30;
+
+    protected override void OnInit()
+    {
+        TimeSpan startTimeSpan = TimeSpan.Zero;
+        TimeSpan periodTimeSpan = TimeSpan.FromMilliseconds(1000);
+
+        Timer = new System.Threading.Timer(async (e) =>
+        {
+            await IncrementTimer();
+        }, null, startTimeSpan, periodTimeSpan);
+    }
+
+    private async Task IncrementTimer()
+    {
+        Time -= 1;
+        if (Time < 1)
+        {
+            await GetPosts();
+            Time = 30;
+        }
+        StateHasChanged();
+    }
+
+    private async Task UpdateNow()
+    {
+        await GetPosts();
+        Time = 30;
+        StateHasChanged();
+    }
+
+    private async Task GetPosts()
+    {
+        if (int.TryParse(Thread, out var threadId))
+        {
+            bool clear = Board != State.CurrentBoard?.NameShort || threadId != State.CurrentBoard?.CurrentThread?.Id;
+            await ActionCreators.GetPosts(Store.Dispatch, Http, Board, threadId, clear);
+        }
+    }
+
+    public new void Dispose()
+    {
+        this.Timer.Dispose();
+        base.Dispose();
+    }
+}
