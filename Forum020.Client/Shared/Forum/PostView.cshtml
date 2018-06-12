@@ -88,7 +88,7 @@
 
     private void RenderLine(Microsoft.AspNetCore.Blazor.RenderTree.RenderTreeBuilder builder, ref int sequence, string line)
     {
-        var words = line.Split(null);
+        var words = line.Split(' ');
         foreach (var word in words)
         {
             var regex = Regex.Match(word, @"^>>>\/(?<board>[A-Za-z]+)\/(?<id>[0-9]+)\/?$");
