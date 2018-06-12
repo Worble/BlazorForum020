@@ -13,15 +13,29 @@ else
     <div class="container grid-xl">
         <PostForm ViewType="View.Post" />
         <div class="columns">
-            <div class="column col-12">
-                <PostTimer Board=@Board Thread=@Thread />
+            <div class="column col-12 post-info-bar">
+                <PostTimer Board=@Board Thread=@Thread /> 
+                <div class="popover popover-top">
+                    <span class="float-right post-count">@State.CurrentBoard.CurrentThread.Posts.Count()</span>
+                    <div class="popover-container">
+                        <div class="card">
+                            <div class="card-body">
+                                Post Count
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="columns">
-            <PostView Post="State.CurrentBoard.CurrentThread" ViewType="View.Post" />
+            <div class="column mt-2 col-12" id=@State.CurrentBoard.CurrentThread.Id>
+                <PostView Post="State.CurrentBoard.CurrentThread" ViewType="View.Post" />
+            </div>
             @foreach (var post in State.CurrentBoard.CurrentThread.Posts)
             {
-                <PostView ViewType="View.Post" Post="post" />
+                <div class="column mt-2 col-12" id=@post.Id>
+                    <PostView ViewType="View.Post" Post="post" />
+                </div>
             }
             <div class="column col-12">
                 <a href=@RoutePaths.Threads(State.CurrentBoard.NameShort)>Back to threads</a>

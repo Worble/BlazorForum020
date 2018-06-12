@@ -48,3 +48,15 @@ footer {
 .text-link{
     white-space:normal;
 }
+
+.post-count {
+    padding: .35rem .4rem;
+    height: 1.8rem;
+    line-height: 1rem;
+    border: .05rem solid #fff;
+}
+
+.post-info-bar .popover-container {
+    white-space: nowrap;
+    width: unset;
+}

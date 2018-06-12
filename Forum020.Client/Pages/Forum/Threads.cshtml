@@ -45,7 +45,9 @@ else
         <div class="columns">
             @foreach (var thread in State.CurrentBoard.Threads)
             {
-                <PostView ViewType="View.Thread" Post="thread" />
+                <div class="column mt-2 @FormatView" id=@thread.Id>
+                    <PostView ViewType="View.Thread" Post="thread" />
+                </div>
             }
         </div>
     </div>
@@ -56,6 +58,8 @@ else
     private string Board { get; set; }
 
     string ChangeFormatText => (State.ThreadViewType == ThreadView.Catalogue ? "Standard" : "Catalogue");
+
+    string FormatView => (State.ThreadViewType == ThreadView.Catalogue ? "col-4 col-lg-6 col-sm-12" : "col-12");
 
     protected override async Task OnParametersSetAsync()
     {

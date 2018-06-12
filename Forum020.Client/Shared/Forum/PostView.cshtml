@@ -2,38 +2,35 @@
 @inject HttpClient Http
 @using System.Text.RegularExpressions;
 
-
-<div class="column mt-2 @FormatView" id=@Post.Id>
-    <div class="card" style="height:100%">
-        <div class="card-header">
-            <div class="card-title">
-                @Post.DateCreated.ToUniversalTime()
-                <a href=@PostLink>No.</a>
-                <a class="c-hand" onclick=@AddQuote>#@Post.Id</a>
-            </div>
-            @if (Post.ImageUrl != null)
-            {
-                <div class="card-subtitle text-grey">
-                    <a href="@Post.ImageUrl" target="_blank">@Post.ImageUrl.Split('/').Last()</a>
-                </div>
-            }
+<div class="card" style="height:100%">
+    <div class="card-header">
+        <div class="card-title">
+            @Post.DateCreated.ToUniversalTime()
+            <a href=@PostLink>No.</a>
+            <a class="c-hand" onclick=@AddQuote>#@Post.Id</a>
         </div>
-        <div class="card-body" style="height:100%;">
-            <a href="@Post.ImageUrl" target="_blank">
-                <img src="@Post.ThumbnailUrl" class="img-responsive float-left mr-2" />
-            </a>
-            @if (!string.IsNullOrEmpty(Post.Content))
-            {
-                @PostContent
-            }
-        </div>
-        @if (ViewType == View.Thread)
+        @if (Post.ImageUrl != null)
         {
-            <div class="card-footer">
-                <a href=@RoutePaths.Posts(State.CurrentBoard.NameShort, Post.Id)>View Thread</a>
+            <div class="card-subtitle text-grey">
+                <a href="@Post.ImageUrl" target="_blank">@Post.ImageUrl.Split('/').Last()</a>
             </div>
         }
     </div>
+    <div class="card-body" style="height:100%;">
+        <a href="@Post.ImageUrl" target="_blank">
+            <img src="@Post.ThumbnailUrl" class="img-responsive float-left mr-2" />
+        </a>
+        @if (!string.IsNullOrEmpty(Post.Content))
+        {
+            @PostContent
+        }
+    </div>
+    @if (ViewType == View.Thread)
+    {
+        <div class="card-footer">
+            <a href=@RoutePaths.Posts(State.CurrentBoard.NameShort, Post.Id)>View Thread</a>
+        </div>
+    }
 </div>
 
 @functions {
@@ -42,8 +39,6 @@
 
     [Parameter]
     View ViewType { get; set; }
-
-    string FormatView => (ViewType == View.Thread && State.ThreadViewType == ThreadView.Catalogue ? "col-4 col-lg-6 col-sm-12" : "col-12");
 
     string PostLink => (Post.IsOp ? RoutePaths.Posts(State.CurrentBoard.NameShort, Post.Id) : RoutePaths.Posts(State.CurrentBoard.NameShort, Post.ThreadId.Value) + '#' + Post.Id);
 

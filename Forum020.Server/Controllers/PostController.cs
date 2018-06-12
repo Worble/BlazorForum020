@@ -39,7 +39,7 @@ namespace Forum020.Server.Controllers
         }
 
         [HttpGet("get-link/{postId}")]
-        public async Task<ActionResult<string>> GetLink(string boardName, int postId)
+        public async Task<ActionResult<BoardDTO>> GetLink(string boardName, int postId)
         {
             return await _postService.GetLinkForPost(boardName, postId);
         }

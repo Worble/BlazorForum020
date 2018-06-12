@@ -1,13 +1,19 @@
 ﻿@inherits ForumAppComponent
 @inject HttpClient Http
 
-@if (string.IsNullOrEmpty(Link))
+@if (Board == null)
 {
     @Content
 }
 else
 {
-    <a href=@Link>@Content</a>
+    <div class="popover">
+        <a href=@Link()>@Content</a>
+        <div class="popover-container">
+            <PostView Post="Board.CurrentThread" ViewType="View.Post"></PostView>
+        </div>
+    </div>
+    @*<a href=@Link()>@Content</a>*@
 }
 @functions{
     [Parameter]
@@ -19,10 +25,20 @@ else
     [Parameter]
     string BoardName { get; set; }
 
-    string Link { get; set; }
+    string Link() => Board.NameShort + "/" +
+                          (Board.CurrentThread.IsOp ?
+                          Board.CurrentThread.Id.ToString() :
+                          Board.CurrentThread.ThreadId.ToString() + "#" + Board.CurrentThread.Id.ToString());
+
+    BoardDTO Board { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        Link = await Http.GetStringAsync(RoutePaths.Api + BoardName + "/get-link/" + PostId);
+        try
+        {
+            Board = await Http.GetJsonAsync<BoardDTO>(RoutePaths.Api + BoardName + "/get-link/" + PostId);
+            Console.WriteLine(Board.CurrentThread.Content);
+        }
+        catch (Exception) { }
     }
 }

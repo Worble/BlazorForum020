@@ -188,12 +188,6 @@ namespace Forum020.Domain.Repositories
             if (board?.CurrentThread == null) throw new NullReferenceException();
 
             return board.CurrentThread.ImageChecksum == checksum || board.CurrentThread.Posts.Any() ? false : true;
-
-            return !(await _context.Posts
-                .Where(e => e.ImageChecksum == checksum 
-                    && e.Board.NameShort == boardName
-                    && (e.IdEffective == threadId || e.ThreadId == threadId))
-                .AnyAsync());
         }
 
         public async Task<BoardDTO> GetPost(string boardName, int postId)
@@ -207,10 +201,16 @@ namespace Forum020.Domain.Repositories
                 NameShort = e.NameShort,
                 CurrentThread = e.Threads.Select(y => new PostDTO()
                 {
+                    Content = y.Content,
+                    BumpDate = y.BumpDate,
+                    DateCreated = y.DateCreated,
+                    DateEdited = y.DateEdited,
                     Id = y.IdEffective,
                     IsOp = y.IsOp,
-                    ThreadId = y.ThreadId,
+                    ThreadId = !y.IsOp ? (int?)y.Thread.IdEffective : null,
                     BoardId = y.BoardId,
+                    ImageUrl = y.ImageUrl,
+                    ThumbnailUrl = y.ThumbnailUrl
                 }).FirstOrDefault(y => y.Id == postId && !y.IsArchived)
             }).FirstOrDefaultAsync(e => e.NameShort == boardName);
         }

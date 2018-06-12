@@ -10,6 +10,6 @@ namespace Forum020.Service.Interfaces
         Task<BoardDTO> GetAllPostsForThread(string boardName, int thread);
         Task<BoardDTO> PostThread(string boardName, PostDTO thread);
         Task<BoardDTO> PostPost(string boardName, int threadId, PostDTO post);
-        Task<string> GetLinkForPost(string boardName, int postId);
+        Task<BoardDTO> GetLinkForPost(string boardName, int postId);
     }
 }

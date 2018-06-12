@@ -2,7 +2,15 @@
 @implements IDisposable
 @inject HttpClient Http
 
-<button class="btn btn-link float-right" onclick="@UpdateNow">@Time</button>
+<div class="popover popover-top">
+    <a class="btn btn-link float-right" onclick="@UpdateNow">@Time</a>    <div class="popover-container">
+        <div class="card">
+            <div class="card-body">
+                Refresh Countdown
+            </div>
+        </div>
+    </div>
+</div>
 
 @functions{
     [Parameter]
@@ -31,8 +39,7 @@
         Time -= 1;
         if (Time < 1)
         {
-            await GetPosts();
-            Time = 30;
+            await UpdateNow();
         }
         StateHasChanged();
     }
@@ -41,7 +48,6 @@
     {
         await GetPosts();
         Time = 30;
-        StateHasChanged();
     }
 
     private async Task GetPosts()

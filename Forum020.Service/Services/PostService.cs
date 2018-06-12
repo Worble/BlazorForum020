@@ -40,21 +40,22 @@ namespace Forum020.Service.Services
             return board;
         }
 
-        public async Task<string> GetLinkForPost(string boardName, int postId)
+        public async Task<BoardDTO> GetLinkForPost(string boardName, int postId)
         {
-            if (!_contextAccessor.HttpContext.Session.TryGetObject(postId.ToString(), out string url))
+            if (!_contextAccessor.HttpContext.Session.TryGetObject(postId.ToString(), out BoardDTO board))
             {
-                var board = await _work.PostRepository.GetPost(boardName, postId);
-                if(board?.CurrentThread == null) return string.Empty;
-                url = board.NameShort + "/" + 
-                    (board.CurrentThread.IsOp ? 
-                    board.CurrentThread.Id.ToString() : 
-                    board.CurrentThread.ThreadId.ToString() + "#" + board.CurrentThread.Id.ToString());
+                board = await _work.PostRepository.GetPost(boardName, postId);
+                if (board?.CurrentThread == null) return null;
+                return board;
+                //url = board.NameShort + "/" + 
+                //    (board.CurrentThread.IsOp ? 
+                //    board.CurrentThread.Id.ToString() : 
+                //    board.CurrentThread.ThreadId.ToString() + "#" + board.CurrentThread.Id.ToString());
 
-                _contextAccessor.HttpContext.Session.SetObject(postId.ToString(), url);
+                //_contextAccessor.HttpContext.Session.SetObject(postId.ToString(), url);
             }
 
-            return url;
+            return board;
         }
 
         public async Task<BoardDTO> PostPost(string boardName, int threadId, PostDTO post)

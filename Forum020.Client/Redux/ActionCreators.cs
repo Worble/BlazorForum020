@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Blazor;
 using System.Threading.Tasks;
 using System;
 using System.Runtime.Serialization;
+using System.IO;
+using System.Net;
 
 namespace Forum020.Client.Redux
 {
@@ -56,8 +58,7 @@ namespace Forum020.Client.Redux
             dispatch(new GetPostsAction
             {
                 Board = board
-            });
-            
+            });            
         }
 
         public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post)
