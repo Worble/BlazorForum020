@@ -4,6 +4,7 @@ using Forum020.Shared;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Transforms;
 using SixLabors.Primitives;
@@ -74,7 +75,7 @@ namespace Forum020.Service.Services
                 file = new FileInfo(localThumbnailPath);
                 file.Directory?.Create();
                 image.Save(localImagePath);
-                thumbnail.Save(localThumbnailPath);
+                thumbnail.Save(localThumbnailPath, new JpegEncoder());
             }
 
             post.ImageUrl = webImagePath;
