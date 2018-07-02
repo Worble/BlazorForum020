@@ -327,6 +327,3 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
-
-Forum020.Client/Lib/spectre/dist/*
-Forum020.Client/Lib/spectre/docs/*
