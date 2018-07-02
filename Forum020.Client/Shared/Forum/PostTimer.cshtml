@@ -2,15 +2,7 @@
 @implements IDisposable
 @inject HttpClient Http
 
-<div class="popover popover-top">
-    <a class="btn btn-link float-right" onclick="@UpdateNow">@Time</a>    <div class="popover-container">
-        <div class="card">
-            <div class="card-body">
-                Refresh Countdown
-            </div>
-        </div>
-    </div>
-</div>
+<a class="btn btn-link float-right tooltip" data-tooltip="Refresh Countdown" onclick="@UpdateNow">@Time</a>
 
 @functions{
     [Parameter]

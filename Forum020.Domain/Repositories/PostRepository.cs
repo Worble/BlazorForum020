@@ -173,7 +173,7 @@ namespace Forum020.Domain.Repositories
         {
             var board = await _context.Boards.Select(e => new BoardDTO()
             {
-                NameShort = boardName,
+                NameShort = e.NameShort,
                 CurrentThread = e.Threads.Select(y => new PostDTO(){ 
                     Id = y.IdEffective,
                     ImageChecksum = y.ImageChecksum,

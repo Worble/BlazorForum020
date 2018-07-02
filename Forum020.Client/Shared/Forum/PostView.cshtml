@@ -7,7 +7,8 @@
         <div class="card-title">
             @Post.DateCreated.ToUniversalTime()
             <a href=@PostLink>No.</a>
-            <a class="c-hand" onclick=@AddQuote>#@Post.Id</a>
+            <a class="c-hand" onclick=@AddQuote>#@Post.Id</a>            
+            <PostSideMenu></PostSideMenu>
         </div>
         @if (Post.ImageUrl != null)
         {
@@ -58,10 +59,10 @@
             var lines = Post.Content.Split(
                 new[] { "\r\n", "\r", "\n" },
                 StringSplitOptions.None
-            ); string line;
+            );
             for (int i = 0; i < lines.Length; i++)
             {
-                line = lines[i];
+                string line = lines[i];
                 sequence++;
                 bool closeSpan = false;
                 if (line.Count() > 1 && line[0] == '>' && line[1] != '>')
@@ -76,11 +77,9 @@
                 if (closeSpan) {
                     builder.CloseElement(); // closing span
                 }
-                if (!(i + 1 == lines.Length))
-                {
-                    builder.AddContent(sequence, "\n");
-                    sequence++;
-                }
+                if (i + 1 == lines.Length) continue;
+                builder.AddContent(sequence, "\n");
+                sequence++;
             }
             builder.CloseElement(); // closing p
         };

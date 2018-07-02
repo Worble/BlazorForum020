@@ -1,5 +1,4 @@
-﻿using Forum020.Server.Services.Interfaces;
-using Forum020.Server.Validators;
+﻿using Forum020.Server.Validators;
 using Forum020.Service.Interfaces;
 using Forum020.Shared;
 using Microsoft.AspNetCore.Hosting;
@@ -15,13 +14,11 @@ namespace Forum020.Server.Controllers
     {
         private readonly IPostService _postService;
         private readonly IImageService _imageService;
-        private readonly INotificationsService _notificationsService;
         private readonly IHostingEnvironment _env;
 
-        public PostController(IPostService postService, INotificationsService notificationsService, IHostingEnvironment env, IImageService imageService)
+        public PostController(IPostService postService, IHostingEnvironment env, IImageService imageService)
         {
             _postService = postService;
-            _notificationsService = notificationsService;
             _imageService = imageService;
             _env = env;
         }
@@ -54,7 +51,7 @@ namespace Forum020.Server.Controllers
                 return BadRequest(result.Errors);
             }
 
-            thread = _imageService.SaveImage(thread, _env, this.HttpContext.Request);
+            thread = _imageService.SaveImage(thread);
             return await _postService.PostThread(boardName, thread);
         }
 
@@ -72,7 +69,7 @@ namespace Forum020.Server.Controllers
             {
                 if (await _imageService.IsImageUniqueToThread(post.Image, boardName, threadId))
                 {
-                    post = _imageService.SaveImage(post, _env, this.HttpContext.Request);
+                    post = _imageService.SaveImage(post);
                 }
                 else
                 {
@@ -81,7 +78,6 @@ namespace Forum020.Server.Controllers
             } 
             
             var board = await _postService.PostPost(boardName, threadId, post);
-            await _notificationsService.SendNotificationAsync(JsonConvert.SerializeObject(board));
             return board;
         }
 

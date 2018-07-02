@@ -25,7 +25,7 @@ namespace Forum020.Client.Redux
             switch (action)
             {
                 case AddQuoteAction a:
-                    return content += ">>" + a.PostId + "\n";
+                    return content + ">>" + a.PostId + "\n";
                 case ClearTextAction _:
                     return string.Empty;
                 case UpdateTextAction a:

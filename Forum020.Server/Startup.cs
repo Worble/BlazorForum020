@@ -3,12 +3,8 @@
 
 using Forum020.Data;
 using Forum020.Domain.UnitOfWork;
-using Forum020.Server.Services;
-using Forum020.Server.Services.Interfaces;
 using Forum020.Service.Interfaces;
 using Forum020.Service.Services;
-using Lib.AspNetCore.ServerSentEvents;
-using Microsoft.AspNetCore.Blazor.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -58,7 +54,6 @@ namespace Forum020.Server
                 {
                     "text/event-stream",
                     MediaTypeNames.Application.Octet,
-                    //WasmMediaTypeNames.Application.Wasm,
                 });
             });
 
@@ -70,10 +65,6 @@ namespace Forum020.Server
                         .AllowAnyHeader()
                     );
             });
-
-            //services.AddServerSentEvents();
-            services.AddServerSentEvents<INotificationsServerSentEventsService, NotificationsServerSentEventsService>();
-            services.AddNotificationsService(Configuration);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
@@ -107,15 +98,12 @@ namespace Forum020.Server
             }
 
             app.UseResponseCompression()
-                .MapServerSentEvents("/sse-notifications", serviceProvider.GetService<NotificationsServerSentEventsService>())
                 .UseStaticFiles()
                 .UseSession()
                 .UseMvc(routes =>
             {
                 routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");
             });
-
-            //app.UseBlazor<Client.Program>();
         }
     }
 }

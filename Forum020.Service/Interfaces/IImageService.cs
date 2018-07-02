@@ -10,7 +10,7 @@ namespace Forum020.Service.Interfaces
 {
     public interface IImageService
     {
-        PostDTO SaveImage(PostDTO post, IHostingEnvironment env, HttpRequest req);
+        PostDTO SaveImage(PostDTO post);
 
         Task<bool> IsImageUniqueToThread(string imageData, string boardName, int threadId);
     }

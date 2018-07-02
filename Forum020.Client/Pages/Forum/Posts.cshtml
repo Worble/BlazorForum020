@@ -9,24 +9,31 @@
     <div class="loading loading-lg"></div>
 }
 else
-{ 
+{
     <div class="container grid-xl">
-        <PostForm ViewType="View.Post" />
-        @*<div class="columns">
-            <div class="column col-12 post-info-bar">
-                <PostTimer Board=@Board Thread=@Thread /> 
-                <div class="popover popover-top">
-                    <span class="float-right post-count">@State.CurrentBoard.CurrentThread.Posts.Count()</span>
-                    <div class="popover-container">
-                        <div class="card">
-                            <div class="card-body">
-                                Post Count
-                            </div>
-                        </div>
+         @if (State.CurrentBoard.CurrentThread.IsArchived)
+         {
+            <div class="columns mt-2">
+                <div class="column">
+                    <div class="toast toast-warning text-center">
+                        This thread has been archived and can no longer be posted in.
                     </div>
                 </div>
             </div>
-        </div>*@
+         }
+        @if (!State.CurrentBoard.CurrentThread.IsArchived)
+        {
+            <PostForm ViewType="View.Post" />
+        }
+        <div class="columns mt-2">
+            <div class="column col-12 post-info-bar">
+                @if (!State.CurrentBoard.CurrentThread.IsArchived)
+                {
+                    <PostTimer Board=@Board Thread=@Thread />
+                }
+                <span class="float-right post-count tooltip" data-tooltip="Post Count">@(State.CurrentBoard.CurrentThread.Posts.Count() + 1)</span>
+            </div>
+        </div>
         <div class="columns">
             <div class="column mt-2 col-12" id=@State.CurrentBoard.CurrentThread.Id>
                 <PostView Post="State.CurrentBoard.CurrentThread" ViewType="View.Post" />

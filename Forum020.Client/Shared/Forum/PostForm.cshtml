@@ -15,7 +15,7 @@
         {
         <div class="columns mt-2">
             <div class="column">
-                <div class="toast toast-error">
+                <div class="toast toast-error text-center">
                     <button onclick=@ToastClear class="btn btn-clear float-right"></button>
                     @Error
                 </div>
@@ -26,7 +26,6 @@
             <div class="column">
                 <label for="file-upload" class="c-hand btn float-left">Upload image: </label>
                 <input id="file-upload" type="file" accept="image/*" onchange=@ReadFile class="inputfile" />
-                @*<input id="image-input" type="hidden" />*@
             </div>
             <div class="column text-center">
                 @if (!string.IsNullOrEmpty(File))
@@ -53,7 +52,7 @@
 
     string Text { get { return State.Content; } set { Dispatch(new UpdateTextAction() { Text = value }); } }
 
-    string File { get; set; }
+    string File { get; set; } = "";
 
     string Error { get; set; } = "";
 
@@ -90,6 +89,7 @@
                     );
                 Dispatch(new ClearTextAction());
                 ButtonDisabled = false;
+                File = string.Empty;
                 StateHasChanged();
                 break;
         }
@@ -109,5 +109,6 @@
         {
             File = result;
         }
+        this.StateHasChanged();
     }
 }

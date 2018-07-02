@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\css\lib\spectre-icons.css" />
+    <Content Remove="wwwroot\css\lib\spectre-icons.min.css" />
     <Content Remove="wwwroot\css\lib\spectre.css" />
     <Content Remove="wwwroot\css\lib\spectre.min.css" />
     <Content Remove="wwwroot\js\service_worker.js" />
@@ -33,6 +35,8 @@
     <None Include="Shared\Forum\BoardsNav.cshtml" />
     <None Include="Shared\Forum\PostForm.cshtml" />
     <None Include="Shared\Forum\PostView.cshtml" />
+    <None Include="wwwroot\css\lib\spectre-icons.css" />
+    <None Include="wwwroot\css\lib\spectre-icons.min.css" />
     <None Include="wwwroot\css\lib\spectre.css" />
     <None Include="wwwroot\css\lib\spectre.min.css" />
   </ItemGroup>
@@ -42,6 +46,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Shared\Forum\PostSideMenu.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Shared\Forum\PostLink.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

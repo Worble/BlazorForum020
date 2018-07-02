@@ -17,14 +17,18 @@ namespace Forum020.Service.Services
 {
     public class ImageService : IImageService
     {
-        public readonly IUnitOfWork _work;
+        private readonly IUnitOfWork _work;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public ImageService(IUnitOfWork work)
+        public ImageService(IUnitOfWork work, IHttpContextAccessor httpContextAccessor, IHostingEnvironment env)
         {
             _work = work;
+            _contextAccessor = httpContextAccessor;
+            _hostingEnvironment = env;
         }
 
-        public PostDTO SaveImage(PostDTO post, IHostingEnvironment env, HttpRequest req)
+        public PostDTO SaveImage(PostDTO post)
         {
             var regex = Regex.Match(post.Image, @"data:image/(?<type>.+?);base64,(?<data>.+)");
 
@@ -46,8 +50,10 @@ namespace Forum020.Service.Services
             string imagePath = "/Images" + post.ThreadId + "/";
             string thumbnailPath = "/Thumbnails" + post.ThreadId + "/";
 
-            string localImagePath = Path.Combine(env.WebRootPath + imagePath, imageName);
-            string localThumbnailPath = Path.Combine(env.WebRootPath + thumbnailPath, thumbnailName);
+            string localImagePath = Path.Combine(_hostingEnvironment.WebRootPath + imagePath, imageName);
+            string localThumbnailPath = Path.Combine(_hostingEnvironment.WebRootPath + thumbnailPath, thumbnailName);
+
+            var req = _contextAccessor.HttpContext.Request;
 
             string webImagePath = req.Scheme + "://" + req.Host + req.PathBase + imagePath + imageName;
             string webThumbnailPath = req.Scheme + "://" + req.Host + req.PathBase + thumbnailPath + thumbnailName;
@@ -60,7 +66,6 @@ namespace Forum020.Service.Services
                     Size = new Size() { Width = 100, Height = 100 }
                 })
             );
-
 
             if (!File.Exists(localImagePath) || !File.Exists(localThumbnailPath))
             {

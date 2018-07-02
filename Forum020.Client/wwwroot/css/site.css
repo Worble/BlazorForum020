@@ -56,7 +56,9 @@ footer {
     border: .05rem solid #fff;
 }
 
-.post-info-bar .popover-container {
-    white-space: nowrap;
-    width: unset;
+.post-link:hover > .popover-container,
+.post-link > .popover-container:hover,
+.post-link > :focus + .popover-container {
+    transform: translate(0,-100%) scale(1);
+    left: 0;
 }

@@ -1,20 +1,20 @@
 ﻿@inherits ForumAppComponent
 @inject HttpClient Http
 
-@if (Board == null)
-{
-    @Content
-}
-else
-{
-    <div class="popover">
-        <a href=@Link()>@Content</a>
-        <div class="popover-container">
+<div class="popover">
+    <a href=@Link() onmouseover="@MouseOver">@Content</a>
+    <div class="popover-container">
+        @if (Board == null)
+        {
+            <div>Loading Post...</div>
+        }
+        else
+        {
             <PostView Post="Board.CurrentThread" ViewType="View.Post"></PostView>
-        </div>
+        }
     </div>
-    @*<a href=@Link()>@Content</a>*@
-}
+</div>
+
 @functions{
     [Parameter]
     string Content { get; set; }
@@ -25,19 +25,19 @@ else
     [Parameter]
     string BoardName { get; set; }
 
-    string Link() => Board.NameShort + "/" +
+    string Link() => Board != null ? Board.NameShort + "/" +
                           (Board.CurrentThread.IsOp ?
                           Board.CurrentThread.Id.ToString() :
-                          Board.CurrentThread.ThreadId.ToString() + "#" + Board.CurrentThread.Id.ToString());
+                          Board.CurrentThread.ThreadId.ToString() + "#" + Board.CurrentThread.Id.ToString())
+                            : string.Empty;
 
     BoardDTO Board { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected async Task MouseOver()
     {
         try
         {
             Board = await Http.GetJsonAsync<BoardDTO>(RoutePaths.Api + BoardName + "/get-link/" + PostId);
-            Console.WriteLine(Board.CurrentThread.Content);
         }
         catch (Exception) { }
     }

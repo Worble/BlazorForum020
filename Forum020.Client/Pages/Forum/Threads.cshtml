@@ -37,9 +37,10 @@ else
             </div>
         </div>
         <PostForm ViewType="View.Thread" />
-        <div class="columns">
+        <div class="columns mt-2">
             <div class="column col-12">
                 <button class="btn btn-link" onclick="@ChangeFormat">@ChangeFormatText view</button>
+                <button class="btn btn-link" onclick=@OnParametersSetAsync>Refresh Threads</button>
             </div>
         </div>
         <div class="columns">
