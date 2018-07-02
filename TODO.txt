@@ -1,4 +1,2 @@
-# Post preview currently loads at render rather than mouse hover on link: this could be pretty damaging in load time for large nested post previews.
-# Images are removed after posting but preview remains.
 # Post previews lean to the right which disappear on mobile, and also should be larger.
 # Implement SignalR whenever blazor support is ready
