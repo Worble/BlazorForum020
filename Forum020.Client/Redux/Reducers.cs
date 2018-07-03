@@ -16,8 +16,21 @@ namespace Forum020.Client.Redux
                 Boards = BoardsReducer(state.Boards, action),
                 CurrentBoard = CurrentBoardReducer(state.CurrentBoard, action),
                 ThreadViewType = ThreadViewTypeReducer(state.ThreadViewType, action),
-                Content = ContentReducer(state.Content, action)
+                Content = ContentReducer(state.Content, action),
+                ErrorMessage = ErrorMessageReducer(state.ErrorMessage, action)
             };
+        }
+
+        private static string ErrorMessageReducer(string content, IAction action)
+        {
+            switch (action)
+            {
+                case ClearErrorMessageAction _:
+                    return string.Empty;
+                case SetErrorMessage a:
+                    return a.Message;
+                default: return content;
+            }
         }
 
         private static string ContentReducer(string content, IAction action)

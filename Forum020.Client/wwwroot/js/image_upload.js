@@ -1,5 +1,6 @@
 ﻿Blazor.registerFunction('readFile', () => {
-    var file = document.getElementById('file-upload').files[0];
+    var input = document.getElementById('file-upload');
+    var file = input.files[0];
     var reader = new FileReader();
 
     return new Promise((resolve, reject) => {
@@ -7,6 +8,7 @@
             resolve("");
         }
         else if (file.size > 3 * 1000 * 1024) {
+            input.value = null;
             resolve("Error: File too large (3MB limit)");
         }
         else {        

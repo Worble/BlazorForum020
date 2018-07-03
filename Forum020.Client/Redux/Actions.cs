@@ -40,4 +40,11 @@ namespace Forum020.Client.Redux
     {
         public string Text { get; set; }
     }
+
+    public class ClearErrorMessageAction : IAction { }
+
+    public class SetErrorMessage : IAction
+    {
+        public string Message { get; set; }
+    }
 }

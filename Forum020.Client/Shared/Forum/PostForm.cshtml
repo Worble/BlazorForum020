@@ -69,28 +69,62 @@
         switch (ViewType)
         {
             case View.Thread:
-                await ActionCreators.PostThread(
-                    Store.Dispatch,
-                    Http,
-                    State.CurrentBoard.NameShort,
-                    new PostDTO() { Content = State.Content, Image = File }
-                    );
-                Dispatch(new ClearTextAction());
-                UriHelper.NavigateTo("/" + State.CurrentBoard.NameShort + "/" + State.CurrentBoard.CurrentThread.Id);
+                if (string.IsNullOrEmpty(File)){
+                    ButtonDisabled = false;
+                    Error = "Please submit an image.";
+                }
+                else
+                {
+                    try
+                    {
+                        await ActionCreators.PostThread(
+                            Store.Dispatch,
+                            Http,
+                            State.CurrentBoard.NameShort,
+                            new PostDTO() { Content = State.Content, Image = File }
+                            );
+                        Dispatch(new ClearTextAction());
+                        UriHelper.NavigateTo("/" + State.CurrentBoard.NameShort + "/" + State.CurrentBoard.CurrentThread.Id);
+                    }
+                    catch (Exception e)
+                    {
+                        Dispatch(new ClearTextAction());
+                        ButtonDisabled = false;
+                        File = string.Empty;
+                        Dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Reformat your post or try again later." });
+                        Console.WriteLine(e);
+                    }
+                }
                 break;
 
             case View.Post:
-                await ActionCreators.PostPost(
-                    Store.Dispatch,
-                    Http,
-                    State.CurrentBoard.NameShort,
-                    State.CurrentBoard.CurrentThread.Id,
-                    new PostDTO() { Content = State.Content, Image = File }
-                    );
-                Dispatch(new ClearTextAction());
-                ButtonDisabled = false;
-                File = string.Empty;
-                StateHasChanged();
+                if(string.IsNullOrEmpty(File) && string.IsNullOrEmpty(State.Content))
+                {
+                    ButtonDisabled = false;
+                    Error = "Please submit an image or text.";
+                }
+                else
+                {
+                    try
+                    {
+                        await ActionCreators.PostPost(
+                            Store.Dispatch,
+                            Http,
+                            State.CurrentBoard.NameShort,
+                            State.CurrentBoard.CurrentThread.Id,
+                            new PostDTO() { Content = State.Content, Image = File }
+                            );
+                    }
+                    catch (Exception e)
+                    {
+                        Dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Reformat your post or try again later." });
+                        Console.WriteLine(e);
+                    }
+                    Dispatch(new ClearTextAction());
+                    ButtonDisabled = false;
+                    File = string.Empty;
+                    StateHasChanged();
+                }
                 break;
         }
     }

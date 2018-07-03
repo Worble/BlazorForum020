@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Blazor;
 using System.Threading.Tasks;
 using System;
 using System.Runtime.Serialization;
-using System.IO;
-using System.Net;
 
 namespace Forum020.Client.Redux
 {
@@ -14,11 +12,19 @@ namespace Forum020.Client.Redux
     {
         public static async Task GetBoards(Dispatcher<IAction> dispatch, HttpClient http)
         {
-            var boards = await http.GetJsonAsync<BoardDTO[]>(RoutePaths.Api + "boards");
-            dispatch(new GetBoardsAction
+            try
             {
-                Boards = boards
-            });
+                var boards = await http.GetJsonAsync<BoardDTO[]>(RoutePaths.Api + "boards");
+                dispatch(new GetBoardsAction
+                {
+                    Boards = boards
+                });
+            }
+            catch (Exception e)
+            {
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Try again later." });
+                Console.WriteLine(e);
+            }
         }
 
         public static async Task GetThreads(Dispatcher<IAction> dispatch, HttpClient http, string boardName, bool clear)
@@ -28,12 +34,20 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearThreadsAction());
             }
 
-            var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName);
-
-            dispatch(new GetThreadsAction
+            try
             {
-                Board = board
-            });
+                var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName);
+
+                dispatch(new GetThreadsAction
+                {
+                    Board = board
+                });
+            }
+            catch (Exception e)
+            {
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Try again later." });
+                Console.WriteLine(e);
+            }
         }
 
         public static async Task GetPosts(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int threadId, bool clear)
@@ -43,12 +57,20 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearPostsAction());
             }
 
-            var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + threadId);
-
-            dispatch(new GetPostsAction
+            try
             {
-                Board = board
-            });
+                var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + threadId);
+
+                dispatch(new GetPostsAction
+                {
+                    Board = board
+                });
+            }
+            catch (Exception e)
+            {
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Try again later." });
+                Console.WriteLine(e);
+            }
         }
 
         public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread)
@@ -58,23 +80,16 @@ namespace Forum020.Client.Redux
             dispatch(new GetPostsAction
             {
                 Board = board
-            });            
+            });
         }
 
         public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post)
         {
-            try
+            var board = await http.PostJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + thread, post);
+            dispatch(new GetPostsAction
             {
-                var board = await http.PostJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + thread, post);
-                dispatch(new GetPostsAction
-                {
-                    Board = board
-                });
-            }
-            catch (SerializationException e)
-            {
-                Console.WriteLine(e.Message);
-            }
+                Board = board
+            });
         }
     }
 }

@@ -10,5 +10,6 @@ namespace Forum020.Client.Redux
         public BoardDTO CurrentBoard { get; set; }
         public ThreadView ThreadViewType { get; set; }
         public string Content { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

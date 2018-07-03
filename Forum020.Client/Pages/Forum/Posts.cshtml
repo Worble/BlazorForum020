@@ -11,17 +11,17 @@
 else
 {
     <div class="container grid-xl">
-         @if (State.CurrentBoard.CurrentThread.IsArchived)
-         {
-            <div class="columns mt-2">
-                <div class="column">
-                    <div class="toast toast-warning text-center">
-                        This thread has been archived and can no longer be posted in.
-                    </div>
+        @if (State.CurrentBoard.CurrentThread.IsArchived)
+        {
+        <div class="columns mt-2">
+            <div class="column">
+                <div class="toast toast-warning text-center">
+                    This thread has been archived and can no longer be posted in.
                 </div>
             </div>
-         }
-        @if (!State.CurrentBoard.CurrentThread.IsArchived)
+        </div>
+        }
+        else
         {
             <PostForm ViewType="View.Post" />
         }
