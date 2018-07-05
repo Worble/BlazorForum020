@@ -3,8 +3,6 @@ using Forum020.Service.Interfaces;
 using Forum020.Shared;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Forum020.Server.Controllers
@@ -49,6 +47,11 @@ namespace Forum020.Server.Controllers
             if (!result.IsValid)
             {
                 return BadRequest(result.Errors);
+            }
+
+            if (string.IsNullOrEmpty(HttpContext.Request.Headers["Authorization"]))
+            {
+
             }
 
             thread = _imageService.SaveImage(thread);

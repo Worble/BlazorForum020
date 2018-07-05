@@ -1,8 +1,10 @@
 ﻿using Forum020.Domain.UnitOfWork;
+using Forum020.Service.CacheHelper;
 using Forum020.Service.Interfaces;
-using Forum020.Service.SessionHelper;
 using Forum020.Shared;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace Forum020.Service.Services
@@ -10,49 +12,48 @@ namespace Forum020.Service.Services
     public class PostService : IPostService
     {
         private readonly IUnitOfWork _work;
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IDistributedCache _cache;
 
-        public PostService(IUnitOfWork work, IHttpContextAccessor contextAccessor)
+        public PostService(IUnitOfWork work, IDistributedCache cache)
         {
             _work = work;
-            _contextAccessor = contextAccessor;
+            _cache = cache;
         }
 
         public async Task<BoardDTO> GetAllPostsForThread(string boardName, int threadId)
         {
-            if (!_contextAccessor.HttpContext.Session.TryGetObject(RoutePaths.Posts(boardName, threadId), out BoardDTO board))
+            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.Posts(boardName, threadId));
+            if (board == null)
             {
                 board = await _work.PostRepository.GetAllPostsForThread(boardName, threadId);
 
-                _contextAccessor.HttpContext.Session.SetObject(RoutePaths.Posts(boardName, threadId), board);
+                await _cache.SetObjectAsync(RoutePaths.Posts(boardName, threadId), board);
             }
             return board;
         }
 
         public async Task<BoardDTO> GetAllThreadsForBoard(string boardName)
         {
-            if (!_contextAccessor.HttpContext.Session.TryGetObject(RoutePaths.Threads(boardName), out BoardDTO board))
+            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.Threads(boardName));
+            if (board == null)
             {
                 board = await _work.PostRepository.GetAllThreadsForBoard(boardName);
 
-                _contextAccessor.HttpContext.Session.SetObject(RoutePaths.Threads(boardName), board);
+                await _cache.SetObjectAsync(RoutePaths.Threads(boardName), board);
             }
             return board;
         }
 
         public async Task<BoardDTO> GetLinkForPost(string boardName, int postId)
         {
-            if (!_contextAccessor.HttpContext.Session.TryGetObject(postId.ToString(), out BoardDTO board))
+            var board = await _cache.GetObjectAsync<BoardDTO>(postId.ToString());
+            if (board == null)
             {
                 board = await _work.PostRepository.GetPost(boardName, postId);
-                if (board?.CurrentThread == null) return null;
-                return board;
-                //url = board.NameShort + "/" + 
-                //    (board.CurrentThread.IsOp ? 
-                //    board.CurrentThread.Id.ToString() : 
-                //    board.CurrentThread.ThreadId.ToString() + "#" + board.CurrentThread.Id.ToString());
 
-                //_contextAccessor.HttpContext.Session.SetObject(postId.ToString(), url);
+                if (board?.CurrentThread == null) return null;
+
+                await _cache.SetObjectAsync(postId.ToString(), board);
             }
 
             return board;
@@ -64,10 +65,10 @@ namespace Forum020.Service.Services
             await _work.SaveChangesAsync();
 
             var board = await _work.PostRepository.GetAllThreadsForBoard(boardName);
-            _contextAccessor.HttpContext.Session.SetObject(RoutePaths.Threads(boardName), board);
+            await _cache.SetObjectAsync(RoutePaths.Threads(boardName), board);
 
             board = await _work.PostRepository.GetAllPostsForThread(boardName, threadId);
-            _contextAccessor.HttpContext.Session.SetObject(RoutePaths.Posts(boardName, board.CurrentThread.Id), board);
+            await _cache.SetObjectAsync(RoutePaths.Posts(boardName, board.CurrentThread.Id), board);
 
             return board;
         }
@@ -78,10 +79,10 @@ namespace Forum020.Service.Services
             await _work.SaveChangesAsync();
 
             var board = await _work.PostRepository.GetAllThreadsForBoard(boardName);
-            _contextAccessor.HttpContext.Session.SetObject(RoutePaths.Threads(boardName), board);
+            await _cache.SetObjectAsync(RoutePaths.Threads(boardName), board);
 
             board = await _work.PostRepository.GetAllPostsForThread(boardName, post.IdEffective);
-            _contextAccessor.HttpContext.Session.SetObject(RoutePaths.Posts(boardName, board.CurrentThread.Id), board);
+            await _cache.SetObjectAsync(RoutePaths.Posts(boardName, board.CurrentThread.Id), board);
 
             return board;
         }

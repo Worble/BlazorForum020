@@ -38,7 +38,7 @@ namespace Forum020.Data
             builder.Entity<Config>().Property(e => e.MaximumThreadCount).HasDefaultValue(12);
         }
 
-        public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             UpdateDates();
             return (await base.SaveChangesAsync(true, cancellationToken));
