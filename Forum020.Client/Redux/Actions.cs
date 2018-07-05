@@ -47,4 +47,9 @@ namespace Forum020.Client.Redux
     {
         public string Message { get; set; }
     }
+
+    public class SetTokenAction : IAction
+    {
+        public string Token { get; set; }
+    }
 }

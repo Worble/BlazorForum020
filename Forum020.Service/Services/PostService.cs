@@ -20,6 +20,31 @@ namespace Forum020.Service.Services
             _cache = cache;
         }
 
+        public async Task<BoardDTO> DeletePost(string boardName, int postId, string userIdentifier)
+        {
+            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.SinglePost(boardName, postId));
+            if (board == null)
+            {
+                board = await _work.PostRepository.GetPost(boardName, postId);
+            }
+
+            if (board?.CurrentThread == null ||
+                board.CurrentThread.UserIdentifier != userIdentifier ||
+                board.CurrentThread.IsOp)
+            {
+                return null;
+            }
+
+            await _work.PostRepository.DeletePost(board.NameShort, board.CurrentThread.Id);
+            await _work.SaveChangesAsync();
+            await _cache.RemoveAsync(RoutePaths.Posts(boardName, board.CurrentThread.Id));
+
+            board = await _work.PostRepository.GetAllPostsForThread(board.NameShort, board.CurrentThread.ThreadId.Value);
+            await _cache.SetObjectAsync(RoutePaths.Posts(board.NameShort, board.CurrentThread.Id), board);
+
+            return board;
+        }
+
         public async Task<BoardDTO> GetAllPostsForThread(string boardName, int threadId)
         {
             var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.Posts(boardName, threadId));
@@ -46,14 +71,14 @@ namespace Forum020.Service.Services
 
         public async Task<BoardDTO> GetLinkForPost(string boardName, int postId)
         {
-            var board = await _cache.GetObjectAsync<BoardDTO>(postId.ToString());
+            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.SinglePost(boardName, postId));
             if (board == null)
             {
                 board = await _work.PostRepository.GetPost(boardName, postId);
 
                 if (board?.CurrentThread == null) return null;
 
-                await _cache.SetObjectAsync(postId.ToString(), board);
+                await _cache.SetObjectAsync(RoutePaths.SinglePost(boardName, postId), board);
             }
 
             return board;

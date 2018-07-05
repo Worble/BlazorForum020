@@ -4,7 +4,8 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Blazor;
 using System.Threading.Tasks;
 using System;
-using System.Runtime.Serialization;
+using System.Net.Http.Headers;
+using System.Net;
 
 namespace Forum020.Client.Redux
 {
@@ -73,23 +74,47 @@ namespace Forum020.Client.Redux
             }
         }
 
-        public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread)
+        public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread, string Token)
         {
-            var board = await http.PostJsonAsync<BoardDTO>(RoutePaths.Api + boardName, thread);
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+            var response = await http.PostJsonAsync<TokenDTO>(RoutePaths.Api + boardName, thread);
 
             dispatch(new GetPostsAction
             {
-                Board = board
+                Board = response.Board
             });
+
+            if (!string.IsNullOrEmpty(response.Token))
+            {
+                dispatch(new SetTokenAction
+                {
+                    Token = response.Token
+                });
+            }
         }
 
-        public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post)
+        public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post, string Token)
         {
-            var board = await http.PostJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + thread, post);
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+            var response = await http.PostJsonAsync<TokenDTO>(RoutePaths.Api + boardName + "/" + thread, post);
+
             dispatch(new GetPostsAction
             {
-                Board = board
+                Board = response.Board
             });
+
+            if (!string.IsNullOrEmpty(response.Token))
+            {
+                dispatch(new SetTokenAction
+                {
+                    Token = response.Token
+                });
+            }
+        }
+
+        public static async Task DeletePost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int threead, string Token)
+        {
+
         }
     }
 }

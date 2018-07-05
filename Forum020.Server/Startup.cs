@@ -5,6 +5,8 @@ using Forum020.Data;
 using Forum020.Domain.UnitOfWork;
 using Forum020.Service.Interfaces;
 using Forum020.Service.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,40 +16,45 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
 using System.Net.Mime;
+using System.Text;
 
 namespace Forum020.Server
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
+        private IConfiguration _config;
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _config = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //dbcontext
             services.AddDbContext<ForumContext>(options =>
-                options.UseNpgsql(Configuration.GetValue<string>("ConnectionString"),
+                options.UseNpgsql(_config.GetValue<string>("ConnectionString"),
                     b => b.MigrationsAssembly("Forum020.Server")));
 
+            //redis cache
             services.AddDistributedRedisCache(options =>
             {
-                options.Configuration = Configuration.GetValue<string>("Redis");
+                options.Configuration = _config.GetValue<string>("Redis");
                 options.InstanceName = "RedisCache";
             });
-            services.AddSession();
 
+            //json serializer
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
 
+            //response compression
             services.AddResponseCompression(options =>
             {
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
@@ -57,15 +64,35 @@ namespace Forum020.Server
                 });
             });
 
+            //cors
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
                     builder => builder.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
+                        .AllowCredentials()
                     );
             });
 
+            //jwt auth
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = "worble.xyz",
+                        ValidAudience = "worble.xyz",
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(_config["SecurityKey"]))
+                    };
+                });
+
+            //mvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.Configure<MvcOptions>(options =>
@@ -73,6 +100,7 @@ namespace Forum020.Server
                 options.Filters.Add(new CorsAuthorizationFilterFactory("AllowAllOrigins"));
             });
 
+            //di
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IBoardService, BoardService>();
             services.AddTransient<IPostService, PostService>();
@@ -99,7 +127,8 @@ namespace Forum020.Server
 
             app.UseResponseCompression()
                 .UseStaticFiles()
-                .UseSession()
+                .UseAuthentication()
+                .UseCookiePolicy()
                 .UseMvc(routes =>
             {
                 routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");

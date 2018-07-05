@@ -32,7 +32,8 @@ namespace Forum020.Data
                     {
                         Board = board,
                         Content = "Thread 1",
-                        IsOp = true
+                        IsOp = true,
+                        UserIdentifier = "TestUser"
                     };
                     context.Add(post);
                     context.SaveChanges();
@@ -41,7 +42,8 @@ namespace Forum020.Data
                     {
                         Content = "Response to thread 1",
                         Thread = post,
-                        Board = board
+                        Board = board,
+                        UserIdentifier = "TestUser"
                     };
                     context.Add(post4);
                     context.SaveChanges();
@@ -50,7 +52,8 @@ namespace Forum020.Data
                     {
                         Board = board,
                         Content = "Thread 2",
-                        IsOp = true
+                        IsOp = true,
+                        UserIdentifier = "TestUser"
                     };
                     context.Add(post2);
                     context.SaveChanges();
@@ -72,7 +75,8 @@ namespace Forum020.Data
                     {
                         Board = board2,
                         Content = "Thread 3",
-                        IsOp = true
+                        IsOp = true,
+                        UserIdentifier = "TestUser"
                     };
                     context.Add(post3);
                     context.SaveChanges();
@@ -82,7 +86,8 @@ namespace Forum020.Data
                     {
                         Board = board2,
                         Content = "Thread 4",
-                        IsOp = true
+                        IsOp = true,
+                        UserIdentifier = "TestUser"
                     };
                     context.Add(post5);
                     context.SaveChanges();

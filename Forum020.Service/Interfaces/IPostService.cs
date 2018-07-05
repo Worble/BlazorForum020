@@ -11,5 +11,6 @@ namespace Forum020.Service.Interfaces
         Task<BoardDTO> PostThread(string boardName, PostDTO thread);
         Task<BoardDTO> PostPost(string boardName, int threadId, PostDTO post);
         Task<BoardDTO> GetLinkForPost(string boardName, int postId);
+        Task<BoardDTO> DeletePost(string boardName, int postId, string userIdentifier);
     }
 }

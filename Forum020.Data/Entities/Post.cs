@@ -19,6 +19,7 @@ namespace Forum020.Data.Entities
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public string ImageChecksum { get; set; }
+        public string UserIdentifier { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
     }

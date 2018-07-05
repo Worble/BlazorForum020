@@ -21,5 +21,6 @@ namespace Forum020.Shared
         public string ImageUrl { get; set; }
         public string ThumbnailUrl { get; set; }
         public string ImageChecksum { get; set; }
+        public string UserIdentifier { get; set; }
     }
 }

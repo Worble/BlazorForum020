@@ -32,6 +32,7 @@ namespace Forum020.Data
             builder.Entity<Post>().Property(e => e.IdEffective).IsRequired();
             builder.Entity<Post>().Property(e => e.IdEffective).ValueGeneratedOnAdd();
             builder.Entity<Post>().Property(e => e.BoardId).IsRequired();
+            builder.Entity<Post>().Property(e => e.UserIdentifier).IsRequired();
 
             //Config
             builder.Entity<Config>().Property(e => e.MaximumReplyCount).HasDefaultValue(100);

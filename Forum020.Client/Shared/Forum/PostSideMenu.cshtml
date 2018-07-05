@@ -1,4 +1,6 @@
-﻿<div class="dropdown float-right dropdown-right">
+﻿@inherits ForumAppComponent
+
+<div class="dropdown float-right dropdown-right">
     <a class="btn btn-link dropdown-toggle" tabindex="0">
         <i class="icon icon-caret"></i>
     </a>
@@ -9,10 +11,20 @@
         </li>
         <li class="divider"></li>
         <li class="menu-item">
-            <a>Delete Post</a>
+            <a onclick="">Delete Post</a>
         </li>
         <li class="menu-item">
             <a>Delete Image</a>
         </li>
     </ul>
 </div>
+
+@functions{
+    [Parameter]
+    int PostId { get; set; }
+
+    public void OnClick()
+    {
+        await ActionCreators.DeletePost(Store.Dispatch, Http, State.CurrentBoard.NameShort, PostId, State.Token);
+    }
+}

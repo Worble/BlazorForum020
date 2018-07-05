@@ -100,7 +100,8 @@ namespace Forum020.Domain.Repositories
                 IsOp = true,
                 ImageChecksum = thread.ImageChecksum,
                 ImageUrl = thread.ImageUrl,
-                ThumbnailUrl = thread.ThumbnailUrl
+                ThumbnailUrl = thread.ThumbnailUrl,
+                UserIdentifier = thread.UserIdentifier
             };
 
             var entity = _context.Posts.Add(post).Entity;
@@ -129,7 +130,8 @@ namespace Forum020.Domain.Repositories
                 Thread = thread,
                 ImageChecksum = post.ImageChecksum,
                 ImageUrl = post.ImageUrl,
-                ThumbnailUrl = post.ThumbnailUrl
+                ThumbnailUrl = post.ThumbnailUrl,
+                UserIdentifier = post.UserIdentifier
             };
 
             if (thread.Posts.Count() < thread.Board.Config.MaximumReplyCount)
@@ -213,6 +215,13 @@ namespace Forum020.Domain.Repositories
                     ThumbnailUrl = y.ThumbnailUrl
                 }).FirstOrDefault(y => y.Id == postId && !y.IsArchived)
             }).FirstOrDefaultAsync(e => e.NameShort == boardName);
+        }
+
+        public async Task DeletePost(string boardName, int postId)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(e => e.Board.NameShort == boardName && e.IdEffective == postId);
+            _context.Posts.Remove(post);
+            
         }
     }
 }
