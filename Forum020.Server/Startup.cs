@@ -68,29 +68,34 @@ namespace Forum020.Server
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
-                    builder => builder.AllowAnyOrigin()
+                    builder => builder.WithOrigins("http://localhost:40303")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials()
-                    );
+                        .SetPreflightMaxAge(TimeSpan.FromMinutes(1))
+                        );
             });
 
+            services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie();
+
             //jwt auth
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = "worble.xyz",
-                        ValidAudience = "worble.xyz",
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(_config["SecurityKey"]))
-                    };
-                });
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //    .AddJwtBearer(options =>
+            //    {
+            //        options.TokenValidationParameters = new TokenValidationParameters
+            //        {
+            //            ValidateIssuer = true,
+            //            ValidateAudience = true,
+            //            ValidateLifetime = true,
+            //            ValidateIssuerSigningKey = true,
+            //            ValidIssuer = "worble.xyz",
+            //            ValidAudience = "worble.xyz",
+            //            IssuerSigningKey = new SymmetricSecurityKey(
+            //                Encoding.UTF8.GetBytes(_config["SecurityKey"]))
+            //        };
+            //    });
 
             //mvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -127,6 +132,7 @@ namespace Forum020.Server
 
             app.UseResponseCompression()
                 .UseStaticFiles()
+                .UseCors()
                 .UseAuthentication()
                 .UseCookiePolicy()
                 .UseMvc(routes =>

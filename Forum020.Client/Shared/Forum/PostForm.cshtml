@@ -16,7 +16,7 @@
         <div class="columns mt-2">
             <div class="column">
                 <div class="toast toast-error text-center">
-                    <button onclick=@ToastClear class="btn btn-clear float-right"></button>
+                    <button type="button" onclick=@ToastClear class="btn btn-clear float-right"></button>
                     @Error
                 </div>
             </div>
@@ -81,8 +81,7 @@
                             Store.Dispatch,
                             Http,
                             State.CurrentBoard.NameShort,
-                            new PostDTO() { Content = State.Content, Image = File },
-                            State.Token
+                            new PostDTO() { Content = State.Content, Image = File }
                             );
                         Dispatch(new ClearTextAction());
                         UriHelper.NavigateTo("/" + State.CurrentBoard.NameShort + "/" + State.CurrentBoard.CurrentThread.Id);
@@ -113,8 +112,7 @@
                             Http,
                             State.CurrentBoard.NameShort,
                             State.CurrentBoard.CurrentThread.Id,
-                            new PostDTO() { Content = State.Content, Image = File },
-                            State.Token
+                            new PostDTO() { Content = State.Content, Image = File }
                             );
                     }
                     catch (Exception e)

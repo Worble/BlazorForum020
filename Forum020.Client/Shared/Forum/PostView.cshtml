@@ -8,7 +8,7 @@
             @Post.DateCreated.ToUniversalTime()
             <a href=@PostLink>No.</a>
             <a class="c-hand" onclick=@AddQuote>#@Post.Id</a>            
-            <PostSideMenu></PostSideMenu>
+            <PostSideMenu PostId="Post.Id"></PostSideMenu>
         </div>
         @if (Post.ImageUrl != null)
         {
@@ -29,7 +29,7 @@
     @if (ViewType == View.Thread)
     {
         <div class="card-footer">
-            <a href=@RoutePaths.Posts(State.CurrentBoard.NameShort, Post.Id)>View Thread</a>
+            <a href=@RoutePaths.PostsRoute(State.CurrentBoard.NameShort, Post.Id)>View Thread</a>
         </div>
     }
 </div>
@@ -41,7 +41,7 @@
     [Parameter]
     View ViewType { get; set; }
 
-    string PostLink => (Post.IsOp ? RoutePaths.Posts(State.CurrentBoard.NameShort, Post.Id) : RoutePaths.Posts(State.CurrentBoard.NameShort, Post.ThreadId.Value) + '#' + Post.Id);
+    string PostLink => (Post.IsOp ? RoutePaths.PostsRoute(State.CurrentBoard.NameShort, Post.Id) : RoutePaths.PostsRoute(State.CurrentBoard.NameShort, Post.ThreadId.Value) + '#' + Post.Id);
 
     void AddQuote() => Dispatch(new AddQuoteAction() { PostId = Post.Id.ToString() });
 

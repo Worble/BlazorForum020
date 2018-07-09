@@ -22,12 +22,12 @@ namespace Forum020.Service.Services
 
         public async Task<IEnumerable<BoardDTO>> GetAllBoards()
         {
-            var boards = await _cache.GetObjectAsync<IEnumerable<BoardDTO>>(RoutePaths.Boards());
+            var boards = await _cache.GetObjectAsync<IEnumerable<BoardDTO>>(RoutePaths.BoardsRoute());
             if(boards == null)
             {
                 boards = await _work.BoardRepository.GetAllBoards();
 
-                await _cache.SetObjectAsync(RoutePaths.Boards(), boards);
+                await _cache.SetObjectAsync(RoutePaths.BoardsRoute(), boards);
             }
             return boards;
         }

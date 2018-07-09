@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System;
 using System.Net.Http.Headers;
 using System.Net;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Blazor.Browser.Http;
+using System.Text;
 
 namespace Forum020.Client.Redux
 {
@@ -74,47 +77,122 @@ namespace Forum020.Client.Redux
             }
         }
 
-        public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread, string Token)
+        public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread)
         {
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
-            var response = await http.PostJsonAsync<TokenDTO>(RoutePaths.Api + boardName, thread);
-
-            dispatch(new GetPostsAction
+            try
             {
-                Board = response.Board
-            });
+                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
 
-            if (!string.IsNullOrEmpty(response.Token))
-            {
-                dispatch(new SetTokenAction
+                var requestMessage = new HttpRequestMessage
                 {
-                    Token = response.Token
+                    Method = HttpMethod.Post,
+                    RequestUri = new UriBuilder(RoutePaths.Api + boardName).Uri,
+                    Content = new StringContent(JsonUtil.Serialize(thread), Encoding.UTF8,
+                                    "application/json")
+                };
+                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
+                
+                var result = await http.SendAsync(requestMessage);
+                var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+
+                dispatch(new GetPostsAction
+                {
+                    Board = board
                 });
+            }
+            catch (Exception e)
+            {
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Reformat your post or try again later." });
+                Console.WriteLine(e);
+                throw;
             }
         }
 
-        public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post, string Token)
+        public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post)
         {
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
-            var response = await http.PostJsonAsync<TokenDTO>(RoutePaths.Api + boardName + "/" + thread, post);
-
-            dispatch(new GetPostsAction
+            try
             {
-                Board = response.Board
-            });
+                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
 
-            if (!string.IsNullOrEmpty(response.Token))
-            {
-                dispatch(new SetTokenAction
+                var requestMessage = new HttpRequestMessage
                 {
-                    Token = response.Token
+                    Method = HttpMethod.Post,
+                    RequestUri = new UriBuilder(RoutePaths.Api + boardName + "/" + thread).Uri,
+                    Content = new StringContent(JsonUtil.Serialize(post), Encoding.UTF8,
+                                    "application/json")
+                };
+                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
+
+                var result = await http.SendAsync(requestMessage);
+                var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+
+                dispatch(new GetPostsAction
+                {
+                    Board = board
                 });
+            }
+            catch (Exception e)
+            {
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Reformat your post or try again later." });
+                Console.WriteLine(e);
+                throw;
             }
         }
 
-        public static async Task DeletePost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int threead, string Token)
+        public static async Task DeletePost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
         {
+            try
+            {
+                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
 
+                var requestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new UriBuilder(RoutePaths.Api + boardName + "/delete/" + postId).Uri
+                };
+                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
+
+                var response = await http.SendAsync(requestMessage);
+                var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+
+                dispatch(new GetPostsAction
+                {
+                    Board = board
+                });
+            }
+            catch(Exception e)
+            {
+                dispatch(new SetErrorMessage() { Message = "You are either not the owner of this post, or the server is down" });
+                Console.WriteLine(e);
+            }
+        }
+
+        public static async Task DeleteImage(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
+        {
+            try
+            {
+                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
+
+                var requestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new UriBuilder(RoutePaths.Api + boardName + "/delete-image/" + postId).Uri
+                };
+                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
+
+                var response = await http.SendAsync(requestMessage);
+                var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+
+                dispatch(new GetPostsAction
+                {
+                    Board = board
+                });
+            }
+            catch (Exception e)
+            {
+                dispatch(new SetErrorMessage() { Message = "You are either not the owner of this post, or the server is down" });
+                Console.WriteLine(e);
+            }
         }
     }
 }

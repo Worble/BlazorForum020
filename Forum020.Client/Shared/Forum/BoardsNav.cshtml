@@ -9,7 +9,7 @@
                 @{ var boards = State.Boards.ToList(); }
                 @for (int i = 0; i < boards.Count; i++)
                 {
-                    <a class="btn btn-link" href=@RoutePaths.Threads(boards[i].NameShort)>@boards[i].Name</a>
+                    <a class="btn btn-link" href=@RoutePaths.ThreadsRoute(boards[i].NameShort)>@boards[i].Name</a>
                     if ((i + 1) < boards.Count)
                     {
                         <div class="divider-vert"></div>

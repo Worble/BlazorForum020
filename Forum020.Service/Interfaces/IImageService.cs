@@ -8,5 +8,6 @@ namespace Forum020.Service.Interfaces
         PostDTO SaveImage(PostDTO post);
 
         Task<bool> IsImageUniqueToThread(string imageData, string boardName, int threadId);
+        Task DeleteImage(string boardName, int postId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿@inherits ForumAppComponent
+@inject HttpClient Http
 
 <div class="dropdown float-right dropdown-right">
     <a class="btn btn-link dropdown-toggle" tabindex="0">
@@ -11,10 +12,10 @@
         </li>
         <li class="divider"></li>
         <li class="menu-item">
-            <a onclick="">Delete Post</a>
+            <a class="c-hand" onclick="@DeletePost">Delete Post</a>
         </li>
         <li class="menu-item">
-            <a>Delete Image</a>
+            <a class="c-hand" onclick="@DeleteImage">Delete Image</a>
         </li>
     </ul>
 </div>
@@ -23,8 +24,13 @@
     [Parameter]
     int PostId { get; set; }
 
-    public void OnClick()
+    public async Task DeletePost()
     {
-        await ActionCreators.DeletePost(Store.Dispatch, Http, State.CurrentBoard.NameShort, PostId, State.Token);
+        await ActionCreators.DeletePost(Store.Dispatch, Http, State.CurrentBoard.NameShort, PostId);
+    }
+
+    public async Task DeleteImage()
+    {
+        await ActionCreators.DeleteImage(Store.Dispatch, Http, State.CurrentBoard.NameShort, PostId);
     }
 }

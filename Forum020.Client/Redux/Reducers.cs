@@ -18,19 +18,7 @@ namespace Forum020.Client.Redux
                 ThreadViewType = ThreadViewTypeReducer(state.ThreadViewType, action),
                 Content = ContentReducer(state.Content, action),
                 ErrorMessage = ErrorMessageReducer(state.ErrorMessage, action),
-                Token = TokenMessageReducer(state.Token, action)
             };
-        }
-
-        private static string TokenMessageReducer(string token, IAction action)
-        {
-            switch (action)
-            {
-                case SetTokenAction a:
-                    return a.Token;
-                default:
-                    return token;
-            }
         }
 
         private static string ErrorMessageReducer(string content, IAction action)

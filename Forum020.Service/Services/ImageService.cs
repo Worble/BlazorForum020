@@ -43,13 +43,16 @@ namespace Forum020.Service.Services
                 throw new Exception();
             }
 
+            var image = Image.Load(binData);
+            var thumbnail = image.Clone();
+
             string name = DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
 
-            string imageName = name + "." + regex.Groups["type"].Value;
+            string imageName = name + "." + Image.DetectFormat(binData).Name.ToLower();
             string thumbnailName = name + ".jpeg";
 
-            string imagePath = "/Images" + post.ThreadId + "/";
-            string thumbnailPath = "/Thumbnails" + post.ThreadId + "/";
+            string imagePath = "/Images/";
+            string thumbnailPath = "/Thumbnails/";
 
             string localImagePath = Path.Combine(_hostingEnvironment.WebRootPath + imagePath, imageName);
             string localThumbnailPath = Path.Combine(_hostingEnvironment.WebRootPath + thumbnailPath, thumbnailName);
@@ -59,8 +62,6 @@ namespace Forum020.Service.Services
             string webImagePath = req.Scheme + "://" + req.Host + req.PathBase + imagePath + imageName;
             string webThumbnailPath = req.Scheme + "://" + req.Host + req.PathBase + thumbnailPath + thumbnailName;
 
-            var image = Image.Load(binData);
-            var thumbnail = image.Clone();
             thumbnail.Mutate(i => i.Resize(new ResizeOptions()
                 {
                     Mode = ResizeMode.Max,
@@ -104,6 +105,24 @@ namespace Forum020.Service.Services
             }
 
             return await _work.PostRepository.IsChecksumUnique(checksum, boardName, threadId);
+        }
+
+        public async Task DeleteImage(string boardName, int postId)
+        {
+            string imagePath = "/Images/";
+            string thumbnailPath = "/Thumbnails/";
+
+            var post = await _work.PostRepository.GetPost(boardName, postId);
+
+            var thumbnailArray = post.CurrentThread.ThumbnailUrl.Split('/');
+            var thumbnailName = thumbnailArray[thumbnailArray.Length-1];
+            string localThumbnail = Path.Combine(_hostingEnvironment.WebRootPath + thumbnailPath, thumbnailName);
+            File.Delete(localThumbnail);
+
+            var imageArray = post.CurrentThread.ImageUrl.Split('/');
+            var imageName = thumbnailArray[imageArray.Length-1];
+            string localImagePath = Path.Combine(_hostingEnvironment.WebRootPath + imagePath, imageName);
+            File.Delete(localImagePath);
         }
     }
 }

@@ -217,11 +217,53 @@ namespace Forum020.Domain.Repositories
             }).FirstOrDefaultAsync(e => e.NameShort == boardName);
         }
 
-        public async Task DeletePost(string boardName, int postId)
+        public async Task<Post> DeletePost(string boardName, int postId)
         {
-            var post = await _context.Posts.FirstOrDefaultAsync(e => e.Board.NameShort == boardName && e.IdEffective == postId);
+            var post = await _context.Posts
+                .Include(e => e.Thread)
+                .FirstOrDefaultAsync(e => e.Board.NameShort == boardName && e.IdEffective == postId);
             _context.Posts.Remove(post);
-            
+            return post;
+        }
+
+        public async Task<Post> GetPostWithUserIdentifier(string boardName, int postId)
+        {
+            return await _context.Posts.FirstOrDefaultAsync(e => e.IdEffective == postId && e.Board.NameShort == boardName);
+        }
+
+        public async Task<BoardDTO> DeleteImage(string boardName, int postId)
+        {
+            var post = await _context.Posts
+                .FirstOrDefaultAsync(e => e.IdEffective == postId && 
+                    e.Board.NameShort == boardName);
+
+            post.ImageChecksum = null;
+            post.ImageUrl = null;
+            post.ThumbnailUrl = null;
+
+            _context.Posts.Update(post);
+
+            return await _context.Boards.Select(e => new BoardDTO()
+            {
+                Id = e.Id,
+                DateCreated = e.DateCreated,
+                DateEdited = e.DateEdited,
+                Name = e.Name,
+                NameShort = e.NameShort,
+                CurrentThread = e.Threads.Select(y => new PostDTO()
+                {
+                    Content = y.Content,
+                    BumpDate = y.BumpDate,
+                    DateCreated = y.DateCreated,
+                    DateEdited = y.DateEdited,
+                    Id = y.IdEffective,
+                    IsOp = y.IsOp,
+                    ThreadId = !y.IsOp ? (int?)y.Thread.IdEffective : null,
+                    BoardId = y.BoardId,
+                    ImageUrl = y.ImageUrl,
+                    ThumbnailUrl = y.ThumbnailUrl
+                }).FirstOrDefault(y => y.Id == postId && !y.IsArchived)
+            }).FirstOrDefaultAsync(e => e.NameShort == boardName);
         }
     }
 }

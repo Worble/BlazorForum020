@@ -20,51 +20,54 @@ namespace Forum020.Service.Services
             _cache = cache;
         }
 
-        public async Task<BoardDTO> DeletePost(string boardName, int postId, string userIdentifier)
+        public async Task<BoardDTO> DeleteImage(string boardName, int postId)
         {
-            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.SinglePost(boardName, postId));
-            if (board == null)
-            {
-                board = await _work.PostRepository.GetPost(boardName, postId);
-            }
-
-            if (board?.CurrentThread == null ||
-                board.CurrentThread.UserIdentifier != userIdentifier ||
-                board.CurrentThread.IsOp)
-            {
-                return null;
-            }
-
-            await _work.PostRepository.DeletePost(board.NameShort, board.CurrentThread.Id);
+            var post = await _work.PostRepository.DeleteImage(boardName, postId);
             await _work.SaveChangesAsync();
-            await _cache.RemoveAsync(RoutePaths.Posts(boardName, board.CurrentThread.Id));
+            if (string.IsNullOrEmpty(post.CurrentThread.Content))
+            {
+                return await DeletePost(boardName, postId);
+            }
+            await _cache.SetObjectAsync(RoutePaths.SinglePost(boardName, postId), post);
 
-            board = await _work.PostRepository.GetAllPostsForThread(board.NameShort, board.CurrentThread.ThreadId.Value);
-            await _cache.SetObjectAsync(RoutePaths.Posts(board.NameShort, board.CurrentThread.Id), board);
+            var board = await _work.PostRepository.GetAllPostsForThread(boardName, post.CurrentThread.ThreadId.Value);
+            await _cache.SetObjectAsync(RoutePaths.PostsRoute(board.NameShort, board.CurrentThread.Id), board);
+
+            return board;
+        }
+
+        public async Task<BoardDTO> DeletePost(string boardName, int postId)
+        {
+            var post = await _work.PostRepository.DeletePost(boardName, postId);
+            await _work.SaveChangesAsync();
+            await _cache.RemoveAsync(RoutePaths.SinglePost(boardName, postId));
+
+            var board = await _work.PostRepository.GetAllPostsForThread(boardName, post.Thread.IdEffective);
+            await _cache.SetObjectAsync(RoutePaths.PostsRoute(board.NameShort, board.CurrentThread.Id), board);
 
             return board;
         }
 
         public async Task<BoardDTO> GetAllPostsForThread(string boardName, int threadId)
         {
-            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.Posts(boardName, threadId));
+            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.PostsRoute(boardName, threadId));
             if (board == null)
             {
                 board = await _work.PostRepository.GetAllPostsForThread(boardName, threadId);
 
-                await _cache.SetObjectAsync(RoutePaths.Posts(boardName, threadId), board);
+                await _cache.SetObjectAsync(RoutePaths.PostsRoute(boardName, threadId), board);
             }
             return board;
         }
 
         public async Task<BoardDTO> GetAllThreadsForBoard(string boardName)
         {
-            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.Threads(boardName));
+            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.ThreadsRoute(boardName));
             if (board == null)
             {
                 board = await _work.PostRepository.GetAllThreadsForBoard(boardName);
 
-                await _cache.SetObjectAsync(RoutePaths.Threads(boardName), board);
+                await _cache.SetObjectAsync(RoutePaths.ThreadsRoute(boardName), board);
             }
             return board;
         }
@@ -90,10 +93,10 @@ namespace Forum020.Service.Services
             await _work.SaveChangesAsync();
 
             var board = await _work.PostRepository.GetAllThreadsForBoard(boardName);
-            await _cache.SetObjectAsync(RoutePaths.Threads(boardName), board);
+            await _cache.SetObjectAsync(RoutePaths.ThreadsRoute(boardName), board);
 
             board = await _work.PostRepository.GetAllPostsForThread(boardName, threadId);
-            await _cache.SetObjectAsync(RoutePaths.Posts(boardName, board.CurrentThread.Id), board);
+            await _cache.SetObjectAsync(RoutePaths.PostsRoute(boardName, board.CurrentThread.Id), board);
 
             return board;
         }
@@ -104,12 +107,25 @@ namespace Forum020.Service.Services
             await _work.SaveChangesAsync();
 
             var board = await _work.PostRepository.GetAllThreadsForBoard(boardName);
-            await _cache.SetObjectAsync(RoutePaths.Threads(boardName), board);
+            await _cache.SetObjectAsync(RoutePaths.ThreadsRoute(boardName), board);
 
             board = await _work.PostRepository.GetAllPostsForThread(boardName, post.IdEffective);
-            await _cache.SetObjectAsync(RoutePaths.Posts(boardName, board.CurrentThread.Id), board);
+            await _cache.SetObjectAsync(RoutePaths.PostsRoute(boardName, board.CurrentThread.Id), board);
 
             return board;
+        }
+
+        public async Task<bool> UserOwnsPost(string boardName, int postId, string userIdentifier)
+        {
+            var post = await _work.PostRepository.GetPostWithUserIdentifier(boardName, postId);
+            
+            if (post == null ||
+                post.UserIdentifier != userIdentifier ||
+                post.IsOp)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

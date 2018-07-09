@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Forum020.Shared\Forum020.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

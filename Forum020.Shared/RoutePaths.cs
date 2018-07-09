@@ -3,9 +3,9 @@
     public static class RoutePaths
     {
         public static string Api => "http://localhost:8610/api/";
-        public static string Boards() => "/";
-        public static string Threads(string Board) => "/" + Board;
-        public static string Posts(string Board, int Thread) => "/" + Board + "/" + Thread;
-        public static string SinglePost(string Board, int PostId) => Board + "/" + PostId;
+        public static string BoardsRoute() => "/";
+        public static string ThreadsRoute(string board) => "/" + board;
+        public static string PostsRoute(string board, int threadId) => "/" + board + "/" + threadId;
+        public static string SinglePost(string board, int postId) => board + "/" + postId;
     }
 }

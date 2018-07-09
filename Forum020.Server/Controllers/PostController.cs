@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,7 +52,7 @@ namespace Forum020.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TokenDTO>> PostThread(string boardName, [FromBody]PostDTO thread)
+        public async Task<ActionResult<BoardDTO>> PostThread(string boardName, [FromBody]PostDTO thread)
         {
             thread = SanitizePost(thread);
 
@@ -61,29 +62,19 @@ namespace Forum020.Server.Controllers
                 return BadRequest(result.Errors);
             }
 
-            bool createJwt = false;
             if (!User.Identity.IsAuthenticated)
             {
-                CreateUser();
-                createJwt = true;
+                await CreateUser();
             }
 
             thread.UserIdentifier = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             thread = _imageService.SaveImage(thread);
 
-            var board = await _postService.PostThread(boardName, thread);
-
-            var response = new TokenDTO() { Board = board };
-            if (createJwt)
-            {
-                response.Token = CreateToken();
-            }
-
-            return response;
+            return await _postService.PostThread(boardName, thread);
         }
 
         [HttpPost("{threadId}")]
-        public async Task<ActionResult<TokenDTO>> PostPost(string boardName, int threadId, [FromBody]PostDTO post)
+        public async Task<ActionResult<BoardDTO>> PostPost(string boardName, int threadId, [FromBody]PostDTO post)
         {
             post = SanitizePost(post);
             var result = new PostValidator().Validate(post);
@@ -92,11 +83,9 @@ namespace Forum020.Server.Controllers
                 return BadRequest(result.Errors);
             }
 
-            bool createJwt = false;
             if (!User.Identity.IsAuthenticated)
             {
-                CreateUser();
-                createJwt = true;
+                await CreateUser();
             }
 
             post.UserIdentifier = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -113,27 +102,34 @@ namespace Forum020.Server.Controllers
                 }
             } 
             
-            var board = await _postService.PostPost(boardName, threadId, post);
-
-            var response = new TokenDTO() { Board = board };
-            if (createJwt)
-            {
-                response.Token = CreateToken();
-            }
-
-            return response;
+            return await _postService.PostPost(boardName, threadId, post);
         }
 
-        [HttpPost("delete/{postId}")]
+        [HttpDelete("delete/{postId}")]
         public async Task<ActionResult<BoardDTO>> DeletePost(string boardName, int postId)
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
-            var board = await _postService.DeletePost(boardName, postId, User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if(await _postService.UserOwnsPost(boardName, postId, User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            { 
+                var board = await _postService.DeletePost(boardName, postId);
+                return board;
+            }
+            return Forbid();
+        }
 
-            if (board == null) return Forbid();
+        [HttpDelete("delete-image/{postId}")]
+        public async Task<ActionResult<BoardDTO>> DeleteImage(string boardName, int postId)
+        {
+            if (!User.Identity.IsAuthenticated) return Unauthorized();
 
-            return board;
+            if (await _postService.UserOwnsPost(boardName, postId, User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            {
+                await _imageService.DeleteImage(boardName, postId);
+                var board = await _postService.DeleteImage(boardName, postId);
+                return board;
+            }
+            return Forbid();
         }
 
         #region helper methods
@@ -147,7 +143,7 @@ namespace Forum020.Server.Controllers
             };
         }
 
-        private void CreateUser()
+        private async Task CreateUser()
         {
             var claims = new List<Claim>
             {
@@ -157,22 +153,39 @@ namespace Forum020.Server.Controllers
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
             HttpContext.User = principal;
+
+            //var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["SecurityKey"]));
+            //var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            //var token = new JwtSecurityToken(
+            //    issuer: "worble.xyz",
+            //    audience: "worble.xyz",
+            //    claims: User.Claims,
+            //    expires: DateTime.Now.AddYears(1),
+            //    signingCredentials: creds);
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
+            {
+                IsPersistent = true,
+                IssuedUtc = DateTime.UtcNow,
+                ExpiresUtc = DateTime.UtcNow.AddYears(1),
+            });
         }
 
-        private string CreateToken()
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["SecurityKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //private string CreateToken()
+        //{
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["SecurityKey"]));
+        //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
-                issuer: "worble.xyz",
-                audience: "worble.xyz",
-                claims: User.Claims,
-                expires: DateTime.Now.AddYears(1),
-                signingCredentials: creds);
+        //    var token = new JwtSecurityToken(
+        //        issuer: "worble.xyz",
+        //        audience: "worble.xyz",
+        //        claims: User.Claims,
+        //        expires: DateTime.Now.AddYears(1),
+        //        signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
 
         #endregion
     }
