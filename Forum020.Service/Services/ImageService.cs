@@ -51,8 +51,8 @@ namespace Forum020.Service.Services
             string imageName = name + "." + Image.DetectFormat(binData).Name.ToLower();
             string thumbnailName = name + ".jpeg";
 
-            string imagePath = "/Images/";
-            string thumbnailPath = "/Thumbnails/";
+            string imagePath = "/Images/" + (post.ThreadId.HasValue ? post.ThreadId.Value + "/" : string.Empty);
+            string thumbnailPath = "/Thumbnails/" + (post.ThreadId.HasValue ? post.ThreadId.Value + "/" : string.Empty);
 
             string localImagePath = Path.Combine(_hostingEnvironment.WebRootPath + imagePath, imageName);
             string localThumbnailPath = Path.Combine(_hostingEnvironment.WebRootPath + thumbnailPath, thumbnailName);
@@ -120,7 +120,7 @@ namespace Forum020.Service.Services
             File.Delete(localThumbnail);
 
             var imageArray = post.CurrentThread.ImageUrl.Split('/');
-            var imageName = thumbnailArray[imageArray.Length-1];
+            var imageName = imageArray[imageArray.Length-1];
             string localImagePath = Path.Combine(_hostingEnvironment.WebRootPath + imagePath, imageName);
             File.Delete(localImagePath);
         }

@@ -89,6 +89,7 @@ namespace Forum020.Server.Controllers
             }
 
             post.UserIdentifier = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            post.ThreadId = threadId;
 
             if (!string.IsNullOrEmpty(post.Image))
             {

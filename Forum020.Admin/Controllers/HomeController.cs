@@ -11,7 +11,6 @@ namespace Forum020.Admin.Controllers
 {
     public class HomeController : Controller
     {
-        [Authorize]
         public IActionResult Index()
         {
             return View();

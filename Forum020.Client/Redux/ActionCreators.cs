@@ -93,6 +93,7 @@ namespace Forum020.Client.Redux
                 requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
                 
                 var result = await http.SendAsync(requestMessage);
+
                 var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
 
                 dispatch(new GetPostsAction
