@@ -1,2 +1,8 @@
 # Post previews lean to the right which disappear on mobile, and also should be larger.
 # Implement SignalR whenever blazor support is ready
+# Change Get/PostJsonAsync to SendAsync so we can access proper Http codes and display relevant error messages to the user
+# Implement an admin area for reports
+# Sidemenu can drop off the bottom of the screen and become inaccessible
+# Image saving code should probably be refactored to be less of a mess
+# Change the current generic DTOs into view specific ones so less fields with simply 'null' in them are being thrown about
+# Reconsider architecture; imageservice for saving images should probably be controlled by postservice rather than the postcontroller so we can properly rollback changes if something goes wrong
