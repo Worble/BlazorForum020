@@ -1,2 +1,5 @@
 # Post previews lean to the right which disappear on mobile, and also should be larger.
 # Implement SignalR whenever blazor support is ready
+# Change Send/PostJson Async to SendAsync so we can access proper Http codes and display relevant error messages to the user
+# Implement an admin area for reports
+# Sidemenu can drop off the bottom of the screen and become inaccessible
