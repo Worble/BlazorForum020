@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System;
 using System.Net.Http.Headers;
 using System.Net;
-using Newtonsoft.Json;
 using Microsoft.AspNetCore.Blazor.Browser.Http;
 using System.Text;
 
