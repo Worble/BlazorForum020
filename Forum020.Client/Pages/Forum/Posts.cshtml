@@ -29,7 +29,7 @@ else
             <div class="column col-12 post-info-bar">
                 @if (!State.CurrentBoard.CurrentThread.IsArchived)
                 {
-                    <PostTimer Board=@Board Thread=@Thread />
+                    @*<PostTimer Board=@Board Thread=@Thread />*@
                 }
                 <span class="float-right post-count tooltip" data-tooltip="Post Count">@(State.CurrentBoard.CurrentThread.Posts.Count() + 1)</span>
             </div>

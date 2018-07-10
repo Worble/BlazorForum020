@@ -10,17 +10,20 @@
             <a class="c-hand" onclick=@AddQuote>#@Post.Id</a>            
             <PostSideMenu PostId="Post.Id"></PostSideMenu>
         </div>
-        @if (Post.ImageUrl != null)
+        @if (!string.IsNullOrEmpty(Post.ImageUrl))
         {
             <div class="card-subtitle text-grey">
                 <a href="@Post.ImageUrl" target="_blank">@Post.ImageUrl.Split('/').Last()</a>
             </div>
         }
     </div>
-    <div class="card-body" style="height:100%;">
+    <div class="card-body" style="height:100%;min-height:100px;position:relative">
+        @if (!string.IsNullOrEmpty(Post.ImageUrl))
+        {
         <a href="@Post.ImageUrl" target="_blank">
             <img src="@Post.ThumbnailUrl" class="img-responsive float-left mr-2" />
         </a>
+        }
         @if (!string.IsNullOrEmpty(Post.Content))
         {
             @PostContent
