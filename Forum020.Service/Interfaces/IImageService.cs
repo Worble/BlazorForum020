@@ -9,5 +9,6 @@ namespace Forum020.Service.Interfaces
 
         Task<bool> IsImageUniqueToThread(string imageData, string boardName, int threadId);
         Task DeleteImage(string boardName, int postId);
+        Task<bool> PostHasImage(string boardName, int postId);
     }
 }

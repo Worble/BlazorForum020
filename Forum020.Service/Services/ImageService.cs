@@ -124,6 +124,13 @@ namespace Forum020.Service.Services
             string localImagePath = Path.Combine(_hostingEnvironment.WebRootPath + imagePath, imageName);
             File.Delete(localImagePath);
         }
+
+        public async Task<bool> PostHasImage(string boardName, int postId)
+        {
+            var post = await _work.PostRepository.GetPost(boardName, postId);
+            return !string.IsNullOrEmpty(post.CurrentThread.ThumbnailUrl) && 
+                !string.IsNullOrEmpty(post.CurrentThread.ImageUrl);
+        }
     }
 }
 

@@ -124,13 +124,19 @@ namespace Forum020.Server.Controllers
         {
             if (!User.Identity.IsAuthenticated) return Unauthorized();
 
-            if (await _postService.UserOwnsPost(boardName, postId, User.FindFirst(ClaimTypes.NameIdentifier).Value))
+            if (!await _postService.UserOwnsPost(boardName, postId, User.FindFirst(ClaimTypes.NameIdentifier).Value))
             {
-                await _imageService.DeleteImage(boardName, postId);
-                var board = await _postService.DeleteImage(boardName, postId);
-                return board;
+                return Forbid();
             }
-            return Forbid();
+
+            if(!await _imageService.PostHasImage(boardName, postId))
+            {
+                return BadRequest();
+            }
+
+            await _imageService.DeleteImage(boardName, postId);
+            var board = await _postService.DeleteImage(boardName, postId);
+            return board;
         }
 
         #region helper methods
