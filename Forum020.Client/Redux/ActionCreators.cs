@@ -25,7 +25,7 @@ namespace Forum020.Client.Redux
             }
             catch (Exception e)
             {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Try again later." });
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
         }
@@ -48,7 +48,7 @@ namespace Forum020.Client.Redux
             }
             catch (Exception e)
             {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Try again later." });
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
         }
@@ -71,12 +71,12 @@ namespace Forum020.Client.Redux
             }
             catch (Exception e)
             {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Try again later." });
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
         }
 
-        public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, PostDTO thread)
+        public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, CreatePostDTO thread)
         {
             try
             {
@@ -93,22 +93,35 @@ namespace Forum020.Client.Redux
                 
                 var result = await http.SendAsync(requestMessage);
 
-                var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
-
-                dispatch(new GetPostsAction
+                switch (result.StatusCode)
                 {
-                    Board = board
-                });
+                    case HttpStatusCode.OK:
+                        var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+
+                        dispatch(new GetPostsAction
+                        {
+                            Board = board
+                        });
+                        break;
+
+                    case HttpStatusCode.BadRequest:
+                        dispatch(new SetErrorMessage() { Message = await result.Content.ReadAsStringAsync() });
+                        break;
+
+                    default:
+                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                        break;
+                }                
             }
             catch (Exception e)
             {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Reformat your post or try again later." });
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
                 throw;
             }
         }
 
-        public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, PostDTO post)
+        public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, CreatePostDTO post)
         {
             try
             {
@@ -124,16 +137,30 @@ namespace Forum020.Client.Redux
                 requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
 
                 var result = await http.SendAsync(requestMessage);
-                var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
 
-                dispatch(new GetPostsAction
+                switch (result.StatusCode)
                 {
-                    Board = board
-                });
+                    case HttpStatusCode.OK:
+                        var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+
+                        dispatch(new GetPostsAction
+                        {
+                            Board = board
+                        });
+                        break;
+
+                    case HttpStatusCode.BadRequest:
+                        dispatch(new SetErrorMessage() { Message = await result.Content.ReadAsStringAsync() });
+                        break;
+
+                    default:
+                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                        break;
+                }                
             }
             catch (Exception e)
             {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Reformat your post or try again later." });
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
                 throw;
             }
@@ -153,16 +180,31 @@ namespace Forum020.Client.Redux
                 requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
 
                 var response = await http.SendAsync(requestMessage);
-                var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
 
-                dispatch(new GetPostsAction
+                switch (response.StatusCode)
                 {
-                    Board = board
-                });
+                    case HttpStatusCode.OK:
+                        var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+
+                        dispatch(new GetPostsAction
+                        {
+                            Board = board
+                        });
+                        break;
+
+                    case HttpStatusCode.Unauthorized:
+                    case HttpStatusCode.Forbidden:
+                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post" });
+                        break;
+
+                    default:
+                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                        break;
+                }
             }
             catch(Exception e)
             {
-                dispatch(new SetErrorMessage() { Message = "You are either not the owner of this post, or the server is down" });
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
         }
@@ -181,16 +223,35 @@ namespace Forum020.Client.Redux
                 requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
 
                 var response = await http.SendAsync(requestMessage);
-                var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
 
-                dispatch(new GetPostsAction
+                switch (response.StatusCode)
                 {
-                    Board = board
-                });
+                    case HttpStatusCode.OK:
+                        var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+
+                        dispatch(new GetPostsAction
+                        {
+                            Board = board
+                        });
+                        break;
+
+                    case HttpStatusCode.BadRequest:
+                        dispatch(new SetErrorMessage() { Message = await response.Content.ReadAsStringAsync() });
+                        break;
+
+                    case HttpStatusCode.Unauthorized:
+                    case HttpStatusCode.Forbidden:
+                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post" });
+                        break;
+
+                    default:
+                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                        break;
+                }                
             }
             catch (Exception e)
             {
-                dispatch(new SetErrorMessage() { Message = "You are either not the owner of this post, or the server is down" });
+                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
         }

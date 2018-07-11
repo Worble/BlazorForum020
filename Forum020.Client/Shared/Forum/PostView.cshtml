@@ -68,6 +68,7 @@
                 string line = lines[i];
                 sequence++;
                 bool closeSpan = false;
+                //if line is a single > and greater than 1 chracter, make it  quote line
                 if (line.Count() > 1 && line[0] == '>' && line[1] != '>')
                 {
                     builder.OpenElement(sequence, "span");
@@ -77,12 +78,13 @@
                 }
                 RenderLine(builder, ref sequence, line);
 
-                if (closeSpan) {
-                    builder.CloseElement(); // closing span
+                if (closeSpan) builder.CloseElement(); // closing quote span
+
+                if (i + 1 != lines.Length) //append newline except for the very last line
+                {
+                    builder.AddContent(sequence, "\n");
+                    sequence++;
                 }
-                if (i + 1 == lines.Length) continue;
-                builder.AddContent(sequence, "\n");
-                sequence++;
             }
             builder.CloseElement(); // closing p
         };
@@ -90,7 +92,7 @@
 
     private void RenderLine(Microsoft.AspNetCore.Blazor.RenderTree.RenderTreeBuilder builder, ref int sequence, string line)
     {
-        var words = line.Split(' ');
+        var words = line.Split(new[] {' '}, StringSplitOptions.None);
         foreach (var word in words)
         {
             var regex = Regex.Match(word, @"^>>>\/(?<board>[A-Za-z]+)\/(?<id>[0-9]+)\/?$");

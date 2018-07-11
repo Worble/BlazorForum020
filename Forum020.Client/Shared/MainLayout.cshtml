@@ -2,16 +2,12 @@
 
 <div class="main">
     @if (!string.IsNullOrEmpty(State.ErrorMessage)) {
-    <div class="container grid-xl">
-        <div class="columns mt-2">
-            <div class="column">
-                <div class="toast toast-error text-center">
-                    <button onclick=@ClearError class="btn btn-clear float-right"></button>
-                    @State.ErrorMessage
-                </div>
-            </div>
-        </div>
+    
+    <div class="toast toast-error text-center fixed">
+        <button onclick=@ClearError class="btn btn-clear float-right"></button>
+        @State.ErrorMessage
     </div>
+
     }
     @Body
 </div>

@@ -3,7 +3,7 @@ using Forum020.Shared;
 
 namespace Forum020.Server.Validators
 {
-    public class ThreadValidator : AbstractValidator<PostDTO>
+    public class ThreadValidator : AbstractValidator<CreatePostDTO>
     {
         public ThreadValidator()
         {

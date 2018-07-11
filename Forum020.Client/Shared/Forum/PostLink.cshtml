@@ -16,7 +16,7 @@
         }
         else
         {
-            <PostView Post="Board.CurrentThread" ViewType="View.Post"></PostView>
+            <PostView Post="Board.Post" ViewType="View.Post"></PostView>
         }
     </div>
 </div>
@@ -32,18 +32,18 @@
     string BoardName { get; set; }
 
     string Link() => Board != null ? Board.NameShort + "/" +
-                          (Board.CurrentThread.IsOp ?
-                          Board.CurrentThread.Id.ToString() :
-                          Board.CurrentThread.ThreadId.ToString() + "#" + Board.CurrentThread.Id.ToString())
+                          (Board.Post.IsOp ?
+                          Board.Post.Id.ToString() :
+                          Board.Post.ThreadId.ToString() + "#" + Board.Post.Id.ToString())
                             : string.Empty;
 
-    BoardDTO Board { get; set; }
+    BoardLinkDTO Board { get; set; }
 
     protected async Task MouseOver()
     {
         try
         {
-            Board = await Http.GetJsonAsync<BoardDTO>(RoutePaths.Api + BoardName + "/get-link/" + PostId);
+            Board = await Http.GetJsonAsync<BoardLinkDTO>(RoutePaths.Api + BoardName + "/get-link/" + PostId);
         }
         catch (Exception) { }
     }

@@ -72,14 +72,14 @@ namespace Forum020.Service.Services
             return board;
         }
 
-        public async Task<BoardDTO> GetLinkForPost(string boardName, int postId)
+        public async Task<BoardLinkDTO> GetLinkForPost(string boardName, int postId)
         {
-            var board = await _cache.GetObjectAsync<BoardDTO>(RoutePaths.SinglePost(boardName, postId));
+            var board = await _cache.GetObjectAsync<BoardLinkDTO>(RoutePaths.SinglePost(boardName, postId));
             if (board == null)
             {
                 board = await _work.PostRepository.GetPost(boardName, postId);
 
-                if (board?.CurrentThread == null) return null;
+                if (board?.Post == null) return null;
 
                 await _cache.SetObjectAsync(RoutePaths.SinglePost(boardName, postId), board);
             }

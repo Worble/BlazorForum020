@@ -81,7 +81,7 @@
                             Store.Dispatch,
                             Http,
                             State.CurrentBoard.NameShort,
-                            new PostDTO() { Content = State.Content, Image = File }
+                            new CreatePostDTO() { Content = State.Content, Image = File }
                             );
                         Dispatch(new ClearTextAction());
                         UriHelper.NavigateTo("/" + State.CurrentBoard.NameShort + "/" + State.CurrentBoard.CurrentThread.Id);
@@ -112,7 +112,7 @@
                             Http,
                             State.CurrentBoard.NameShort,
                             State.CurrentBoard.CurrentThread.Id,
-                            new PostDTO() { Content = State.Content, Image = File }
+                            new CreatePostDTO() { Content = State.Content, Image = File }
                             );
                     }
                     catch (Exception e)

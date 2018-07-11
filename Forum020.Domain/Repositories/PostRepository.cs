@@ -192,16 +192,16 @@ namespace Forum020.Domain.Repositories
             return board.CurrentThread.ImageChecksum == checksum || board.CurrentThread.Posts.Any() ? false : true;
         }
 
-        public async Task<BoardDTO> GetPost(string boardName, int postId)
+        public async Task<BoardLinkDTO> GetPost(string boardName, int postId)
         {
-            return await _context.Boards.Select(e => new BoardDTO()
+            return await _context.Boards.Select(e => new BoardLinkDTO()
             {
                 Id = e.Id,
                 DateCreated = e.DateCreated,
                 DateEdited = e.DateEdited,
                 Name = e.Name,
                 NameShort = e.NameShort,
-                CurrentThread = e.Threads.Select(y => new PostDTO()
+                Post = e.Threads.Select(y => new PostDTO()
                 {
                     Content = y.Content,
                     BumpDate = y.BumpDate,

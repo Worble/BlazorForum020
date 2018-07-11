@@ -46,16 +46,14 @@ namespace Forum020.Server.Controllers
         }
 
         [HttpGet("get-link/{postId}")]
-        public async Task<ActionResult<BoardDTO>> GetLink(string boardName, int postId)
+        public async Task<ActionResult<BoardLinkDTO>> GetLink(string boardName, int postId)
         {
             return await _postService.GetLinkForPost(boardName, postId);
         }
 
         [HttpPost]
-        public async Task<ActionResult<BoardDTO>> PostThread(string boardName, [FromBody]PostDTO thread)
+        public async Task<ActionResult<BoardDTO>> PostThread(string boardName, [FromBody]CreatePostDTO thread)
         {
-            thread = SanitizePost(thread);
-
             var result = new ThreadValidator().Validate(thread);
             if (!result.IsValid)
             {
@@ -67,16 +65,17 @@ namespace Forum020.Server.Controllers
                 await CreateUser();
             }
 
-            thread.UserIdentifier = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            thread = _imageService.SaveImage(thread);
+            var threadPost = new PostDTO() { Content = thread.Content, Image = thread.Image };
 
-            return await _postService.PostThread(boardName, thread);
+            threadPost.UserIdentifier = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            threadPost = _imageService.SaveImage(threadPost);
+
+            return await _postService.PostThread(boardName, threadPost);
         }
 
         [HttpPost("{threadId}")]
-        public async Task<ActionResult<BoardDTO>> PostPost(string boardName, int threadId, [FromBody]PostDTO post)
+        public async Task<ActionResult<BoardDTO>> PostPost(string boardName, int threadId, [FromBody]CreatePostDTO post)
         {
-            post = SanitizePost(post);
             var result = new PostValidator().Validate(post);
             if (!result.IsValid)
             {
@@ -88,22 +87,24 @@ namespace Forum020.Server.Controllers
                 await CreateUser();
             }
 
-            post.UserIdentifier = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            post.ThreadId = threadId;
+            var postPost = new PostDTO() { Content = post.Content, Image = post.Image };
 
-            if (!string.IsNullOrEmpty(post.Image))
+            postPost.UserIdentifier = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            postPost.ThreadId = threadId;
+
+            if (!string.IsNullOrEmpty(postPost.Image))
             {
-                if (await _imageService.IsImageUniqueToThread(post.Image, boardName, threadId))
+                if (await _imageService.IsImageUniqueToThread(postPost.Image, boardName, threadId))
                 {
-                    post = _imageService.SaveImage(post);
+                    postPost = _imageService.SaveImage(postPost);
                 }
                 else
                 {
-                    return BadRequest();
+                    return BadRequest("Duplicate Image Detected");
                 }
             } 
             
-            return await _postService.PostPost(boardName, threadId, post);
+            return await _postService.PostPost(boardName, threadId, postPost);
         }
 
         [HttpDelete("delete/{postId}")]
@@ -131,7 +132,7 @@ namespace Forum020.Server.Controllers
 
             if(!await _imageService.PostHasImage(boardName, postId))
             {
-                return BadRequest();
+                return BadRequest("Post does not have image to delete");
             }
 
             await _imageService.DeleteImage(boardName, postId);
@@ -140,15 +141,6 @@ namespace Forum020.Server.Controllers
         }
 
         #region helper methods
-
-        private PostDTO SanitizePost(PostDTO post)
-        {
-            return new PostDTO()
-            {
-                Content = post.Content,
-                Image = post.Image
-            };
-        }
 
         private async Task CreateUser()
         {

@@ -114,22 +114,22 @@ namespace Forum020.Service.Services
 
             var post = await _work.PostRepository.GetPost(boardName, postId);
 
-            var thumbnailArray = post.CurrentThread.ThumbnailUrl.Split('/');
+            var thumbnailArray = post.Post.ThumbnailUrl.Split('/');
             var thumbnailName = thumbnailArray[thumbnailArray.Length-1];
             string localThumbnail = Path.Combine(_hostingEnvironment.WebRootPath + thumbnailPath, thumbnailName);
-            File.Delete(localThumbnail);
+            if(File.Exists(localThumbnail)) File.Delete(localThumbnail);
 
-            var imageArray = post.CurrentThread.ImageUrl.Split('/');
+            var imageArray = post.Post.ImageUrl.Split('/');
             var imageName = imageArray[imageArray.Length-1];
             string localImagePath = Path.Combine(_hostingEnvironment.WebRootPath + imagePath, imageName);
-            File.Delete(localImagePath);
+            if(File.Exists(localImagePath)) File.Delete(localImagePath);
         }
 
         public async Task<bool> PostHasImage(string boardName, int postId)
         {
             var post = await _work.PostRepository.GetPost(boardName, postId);
-            return !string.IsNullOrEmpty(post.CurrentThread.ThumbnailUrl) && 
-                !string.IsNullOrEmpty(post.CurrentThread.ImageUrl);
+            return !string.IsNullOrEmpty(post.Post.ThumbnailUrl) && 
+                !string.IsNullOrEmpty(post.Post.ImageUrl);
         }
     }
 }

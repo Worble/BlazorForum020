@@ -10,7 +10,7 @@ namespace Forum020.Service.Interfaces
         Task<BoardDTO> GetAllPostsForThread(string boardName, int thread);
         Task<BoardDTO> PostThread(string boardName, PostDTO thread);
         Task<BoardDTO> PostPost(string boardName, int threadId, PostDTO post);
-        Task<BoardDTO> GetLinkForPost(string boardName, int postId);
+        Task<BoardLinkDTO> GetLinkForPost(string boardName, int postId);
         Task<BoardDTO> DeletePost(string boardName, int postId);
         Task<BoardDTO> DeleteImage(string boardName, int postId);
         Task<bool> UserOwnsPost(string boardName, int postId, string userIdentifier);
