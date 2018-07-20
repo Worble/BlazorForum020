@@ -1,0 +1,55 @@
+﻿@inherits ForumAppComponent
+@using System.Text.RegularExpressions;
+@if (true) { //this is a stupid fix for a stupid bug pls help
+<text><p style="white-space:pre-line;"></text> //basically without these text tags p will create a newline but we need to be in razor syntax to use them so we just do `if (true)` to abuse this
+    var lines = Content.Split(
+                       new[] { "\r\n", "\r", "\n" },
+                       StringSplitOptions.None
+                       );
+    
+    for (int i = 0; i < lines.Length; i++) //for each line
+    {
+        string line = lines[i];
+        bool closeSpan = false;
+        if (line.Count() > 1 && line[0] == '>' && line[1] != '>') //if line begins with a single '>' and is longer than 1 char it is a quote
+        {
+            <text><span class="quote"></text>
+            closeSpan = true;
+        }
+        //render each line
+        var words = line.Split(new[] { ' ' }, StringSplitOptions.None);
+        foreach (var word in words)
+        {
+            var regex = Regex.Match(word, @"^>>>\/(?<board>[A-Za-z]+)\/(?<id>[0-9]+)\/?$"); //board redirect
+            if (regex.Success)
+            {
+                var board = regex.Groups["board"].Value;
+                var id = regex.Groups["id"].Value;
+                <text><span class="text-link"><PostLink BoardName="@board" Content="@word" PostId="@id"></PostLink></span></text>
+            }
+            else if (Regex.IsMatch(word, @"^>>[0-9]+$")) //quote
+            {
+                var id = word.Substring(2);
+                <text><span class="text-link"><PostLink Content="@word" PostId="@id" BoardName="@State.CurrentBoard.NameShort"></PostLink></span></text>
+            }
+            else //just regular content
+            {
+                <text>@(word + " ")</text>
+            }
+        }
+        if (closeSpan)
+        {
+            //we currently can't surround this in `<text>` tags because who knows man, so this will always create a newline for now.
+            @:</span>
+        }
+        if (i + 1 != lines.Length) //append newline except for the very last line
+        {
+            <text>&#13;&#10;</text>
+        }
+    }
+@:</p>
+}
+@functions {
+    [Parameter]
+    string Content { get; set; }
+}

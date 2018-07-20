@@ -17,7 +17,7 @@
             </div>
         }
     </div>
-    <div class="card-body" style="height:100%;min-height:100px;position:relative">
+    <div class="card-body" style="height:100%;min-height:100px;position:relative;">
         @if (!string.IsNullOrEmpty(Post.ImageUrl))
         {
         <a href="@Post.ImageUrl" target="_blank">
@@ -26,7 +26,7 @@
         }
         @if (!string.IsNullOrEmpty(Post.Content))
         {
-            @PostContent
+            <PostContent Content="@Post.Content"></PostContent>
         }
     </div>
     @if (ViewType == View.Thread)
@@ -48,102 +48,103 @@
 
     void AddQuote() => Dispatch(new AddQuoteAction() { PostId = Post.Id.ToString() });
 
-    private Microsoft.AspNetCore.Blazor.RenderFragment PostContent;
+    //private Microsoft.AspNetCore.Blazor.RenderFragment PostContent;
 
-    protected override void OnInit()
-    {
-        int sequence = 1;
-        PostContent = builder =>
-        {
-            builder.OpenElement(sequence, "p");
-            sequence++;
-            builder.AddAttribute(sequence, "style", "white-space:pre-line;");
-            sequence++;
-            var lines = Post.Content.Split(
-                new[] { "\r\n", "\r", "\n" },
-                StringSplitOptions.None
-            );
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string line = lines[i];
-                sequence++;
-                bool closeSpan = false;
-                //if line is a single > and greater than 1 chracter, make it  quote line
-                if (line.Count() > 1 && line[0] == '>' && line[1] != '>')
-                {
-                    builder.OpenElement(sequence, "span");
-                    closeSpan = true;
-                    builder.AddAttribute(sequence, "class", "quote");
-                    sequence++;
-                }
-                RenderLine(builder, ref sequence, line);
+    //int Sequence { get; set; }
 
-                if (closeSpan) builder.CloseElement(); // closing quote span
+    //protected override void OnInit()
+    //{
+    //    PostContent = builder =>
+    //    {
+    //        builder.OpenElement(Sequence, "p");
+    //        Sequence++;
+    //        builder.AddAttribute(Sequence, "style", "white-space:pre-line;");
+    //        Sequence++;
+    //        var lines = Post.Content.Split(
+    //            new[] { "\r\n", "\r", "\n" },
+    //            StringSplitOptions.None
+    //        );
+    //        for (int i = 0; i < lines.Length; i++)
+    //        {
+    //            string line = lines[i];
+    //            Sequence++;
+    //            bool closeSpan = false;
+    //            //if line[0] is a single '>' and greater than 1 chracter, make it  quote line
+    //            if (line.Count() > 1 && line[0] == '>' && line[1] != '>')
+    //            {
+    //                builder.OpenElement(Sequence, "span");
+    //                closeSpan = true;
+    //                builder.AddAttribute(Sequence, "class", "quote");
+    //                Sequence++;
+    //            }
+    //            RenderLine(builder, line);
 
-                if (i + 1 != lines.Length) //append newline except for the very last line
-                {
-                    builder.AddContent(sequence, "\n");
-                    sequence++;
-                }
-            }
-            builder.CloseElement(); // closing p
-        };
-    }
+    //            if (closeSpan) builder.CloseElement(); // closing quote span
 
-    private void RenderLine(Microsoft.AspNetCore.Blazor.RenderTree.RenderTreeBuilder builder, ref int sequence, string line)
-    {
-        var words = line.Split(new[] {' '}, StringSplitOptions.None);
-        foreach (var word in words)
-        {
-            var regex = Regex.Match(word, @"^>>>\/(?<board>[A-Za-z]+)\/(?<id>[0-9]+)\/?$");
-            if (regex.Success) //board redirect
-            {
-                var board = regex.Groups["board"].Value;
-                var id = regex.Groups["id"].Value;
-                builder.OpenElement(sequence, "span");
-                sequence++;
-                builder.AddAttribute(sequence, "class", "text-link");
-                sequence++;
-                builder.OpenComponent<PostLink>(sequence);
-                sequence++;
-                builder.AddAttribute(sequence, "Content", word);
-                sequence++;
-                builder.AddAttribute(sequence, "PostId", id);
-                sequence++;
-                builder.AddAttribute(sequence, "BoardName", board);
-                sequence++;
-                builder.CloseComponent(); //closing PostLink
-                builder.CloseElement(); //closing span
-                builder.AddContent(sequence, " ");
-                sequence++;
-            }
-            else if (Regex.IsMatch(word, @"^>>[0-9]+$")) //quote
-            {
-                var id = word.Substring(2);
-                builder.OpenElement(sequence, "span");
-                sequence++;
-                builder.AddAttribute(sequence, "class", "text-link");
-                sequence++;
-                builder.OpenComponent<PostLink>(sequence);
-                sequence++;
-                builder.AddAttribute(sequence, "Content", word);
-                sequence++;
-                builder.AddAttribute(sequence, "PostId", id);
-                sequence++;
-                builder.AddAttribute(sequence, "BoardName", State.CurrentBoard.NameShort);
-                sequence++;
-                builder.CloseComponent(); //closing PostLink
-                builder.CloseElement(); //closing span
-                builder.AddContent(sequence, " ");
-                sequence++;
-            }
-            else
-            {
-                builder.AddContent(sequence, word);
-                sequence++;
-                builder.AddContent(sequence, " ");
-                sequence++;
-            }
-        }
-    }
+    //            if (i + 1 != lines.Length) //append newline except for the very last line
+    //            {
+    //                builder.AddContent(Sequence, "\n");
+    //                Sequence++;
+    //            }
+    //        }
+    //        builder.CloseElement(); // closing p
+    //    };
+    //}
+
+    //private void RenderLine(Microsoft.AspNetCore.Blazor.RenderTree.RenderTreeBuilder builder, string line)
+    //{
+    //    var words = line.Split(new[] {' '}, StringSplitOptions.None);
+    //    foreach (var word in words)
+    //    {
+    //        var regex = Regex.Match(word, @"^>>>\/(?<board>[A-Za-z]+)\/(?<id>[0-9]+)\/?$");
+    //        if (regex.Success) //board redirect
+    //        {
+    //            var board = regex.Groups["board"].Value;
+    //            var id = regex.Groups["id"].Value;
+    //            builder.OpenElement(Sequence, "span");
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "class", "text-link");
+    //            Sequence++;
+    //            builder.OpenComponent<PostLink>(Sequence);
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "Content", word);
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "PostId", id);
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "BoardName", board);
+    //            Sequence++;
+    //            builder.CloseComponent(); //closing PostLink
+    //            builder.CloseElement(); //closing span
+    //            builder.AddContent(Sequence, " ");
+    //            Sequence++;
+    //        }
+    //        else if (Regex.IsMatch(word, @"^>>[0-9]+$")) //quote
+    //        {
+    //            var id = word.Substring(2);
+    //            builder.OpenElement(Sequence, "span");
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "class", "text-link");
+    //            Sequence++;
+    //            builder.OpenComponent<PostLink>(Sequence);
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "Content", word);
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "PostId", id);
+    //            Sequence++;
+    //            builder.AddAttribute(Sequence, "BoardName", State.CurrentBoard.NameShort);
+    //            Sequence++;
+    //            builder.CloseComponent(); //closing PostLink
+    //            builder.CloseElement(); //closing span
+    //            builder.AddContent(Sequence, " ");
+    //            Sequence++;
+    //        }
+    //        else
+    //        {
+    //            builder.AddContent(Sequence, word);
+    //            Sequence++;
+    //            builder.AddContent(Sequence, " ");
+    //            Sequence++;
+    //        }
+    //    }
+    //}
 }

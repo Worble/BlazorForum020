@@ -1,26 +1,31 @@
 ﻿@inherits ForumAppComponent
 @inject HttpClient Http
-
-<div class="popover">
-    <a href=@Link() onmouseover="@MouseOver">@Content</a>
-    <div class="popover-container">
-        @if (Board == null)
-        {
-            <div class="card" style="height:100%">
-                <div class="card-header">
-                    <div class="card-title">
-                        Loading post...
+@if (DeadLink)
+{
+    <span style="text-decoration: line-through;color:red;">@Content</span>
+}
+else
+{
+    <div class="popover">
+        <a href=@Link() onmouseover="@MouseOver">@Content</a>
+        <div class="popover-container">
+            @if (Board == null)
+            {
+                <div class="card" style="height:100%">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Loading post...
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-        else
-        {
-            <PostView Post="Board.Post" ViewType="View.Post"></PostView>
-        }
+            }
+            else
+            {
+                <PostView Post="Board.Post" ViewType="View.Post"></PostView>
+            }
+        </div>
     </div>
-</div>
-
+}
 @functions{
     [Parameter]
     string Content { get; set; }
@@ -30,6 +35,8 @@
 
     [Parameter]
     string BoardName { get; set; }
+
+    bool DeadLink { get; set; } = false;
 
     string Link() => Board != null ? Board.NameShort + "/" +
                           (Board.Post.IsOp ?
@@ -45,6 +52,9 @@
         {
             Board = await Http.GetJsonAsync<BoardLinkDTO>(RoutePaths.Api + BoardName + "/get-link/" + PostId);
         }
-        catch (Exception) { }
+        catch (Exception)
+        {
+            DeadLink = true;
+        }
     }
 }
