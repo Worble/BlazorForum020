@@ -2,7 +2,7 @@
 @inject HttpClient Http
 @if (DeadLink)
 {
-    <span style="text-decoration: line-through;color:red;">@Content</span>
+    <text><span style="text-decoration: line-through;color:red;">@Content</span></text>
 }
 else
 {
@@ -11,17 +11,19 @@ else
         <div class="popover-container">
             @if (Board == null)
             {
-                <div class="card" style="height:100%">
-                    <div class="card-header">
-                        <div class="card-title">
-                            Loading post...
+                <text>
+                    <div class="card" style="height:100%">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Loading post...
+                            </div>
                         </div>
                     </div>
-                </div>
+                </text>
             }
             else
             {
-                <PostView Post="Board.Post" ViewType="View.Post"></PostView>
+                <text><PostView Post="Board.Post" ViewType="View.Post"></PostView></text>
             }
         </div>
     </div>

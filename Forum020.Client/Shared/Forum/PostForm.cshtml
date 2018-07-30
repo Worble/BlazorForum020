@@ -1,7 +1,7 @@
 ﻿@inherits ForumAppComponent
 @inject HttpClient Http
 @inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
-@using Microsoft.AspNetCore.Blazor.Browser.Interop
+@using Microsoft.JSInterop;
 
 <div class="columns">
     <div class="column col-8 col-lg-12 col-mx-auto">
@@ -133,7 +133,7 @@
     {
         Error = string.Empty;
         ButtonDisabled = true;
-        var result = await RegisteredFunction.InvokeAsync<string>("readFile", true);
+        var result = await JSRuntime.Current.InvokeAsync<string>("input.uploadFile");
         ButtonDisabled = false;
         if (result.Contains("Error: "))
         {

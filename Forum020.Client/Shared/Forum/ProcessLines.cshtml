@@ -1,0 +1,28 @@
+﻿@inherits ForumAppComponent
+@using System.Text.RegularExpressions;
+@{var lines = Lines.Split(
+                      new[] { "\r\n", "\r", "\n" },
+                      StringSplitOptions.None
+                      );
+}
+@for (int i = 0; i < lines.Length; i++) //for each line
+{
+    string line = lines[i];
+    if (line.Count() > 1 && line[0] == '>' && line[1] != '>') //if line begins with a single '>' and is longer than 1 char it is a quote
+    {
+        <text><span class="quote"><ProcessLine Line="@line"></ProcessLine></span></text>
+    }
+    else
+    {
+        <text><ProcessLine Line="@line"></ProcessLine></text>
+    }
+
+    if (i + 1 != lines.Length) //append newline except for the very last line
+    {
+        <text>&#13;&#10;</text>
+    }
+}
+@functions {
+[Parameter]
+    string Lines { get; set; }
+}

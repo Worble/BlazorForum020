@@ -12,7 +12,6 @@
     <Content Remove="wwwroot\css\lib\spectre-icons.min.css" />
     <Content Remove="wwwroot\css\lib\spectre.css" />
     <Content Remove="wwwroot\css\lib\spectre.min.css" />
-    <Content Remove="wwwroot\js\service_worker.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,10 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazor-Redux" Version="0.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Browser" Version="0.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.4.0" />
-    <DotNetCliToolReference Include="Microsoft.AspNetCore.Blazor.Cli" Version="0.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.Browser" Version="0.5.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.5.1" />
+    <DotNetCliToolReference Include="Microsoft.AspNetCore.Blazor.Cli" Version="0.5.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,8 +42,23 @@
   <ItemGroup>
     <ProjectReference Include="..\Forum020.Shared\Forum020.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BlazorRedux">
+      <HintPath>..\..\blazor-redux\src\BlazorRedux\bin\release\netstandard2.0\BlazorRedux.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   
   <ItemGroup>
+    <Content Update="Shared\Forum\ProcessLine.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Shared\Forum\ProcessLines.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Shared\Forum\Test.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Shared\Forum\PostSideMenu.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

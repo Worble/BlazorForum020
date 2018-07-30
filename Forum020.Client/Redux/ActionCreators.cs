@@ -4,10 +4,10 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Blazor;
 using System.Threading.Tasks;
 using System;
-using System.Net.Http.Headers;
 using System.Net;
 using Microsoft.AspNetCore.Blazor.Browser.Http;
 using System.Text;
+using Microsoft.JSInterop;
 
 namespace Forum020.Client.Redux
 {
@@ -86,7 +86,7 @@ namespace Forum020.Client.Redux
                 {
                     Method = HttpMethod.Post,
                     RequestUri = new UriBuilder(RoutePaths.Api + boardName).Uri,
-                    Content = new StringContent(JsonUtil.Serialize(thread), Encoding.UTF8,
+                    Content = new StringContent(Json.Serialize(thread), Encoding.UTF8,
                                     "application/json")
                 };
                 requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
@@ -96,7 +96,7 @@ namespace Forum020.Client.Redux
                 switch (result.StatusCode)
                 {
                     case HttpStatusCode.OK:
-                        var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+                        var board = Json.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
 
                         dispatch(new GetPostsAction
                         {
@@ -131,7 +131,7 @@ namespace Forum020.Client.Redux
                 {
                     Method = HttpMethod.Post,
                     RequestUri = new UriBuilder(RoutePaths.Api + boardName + "/" + thread).Uri,
-                    Content = new StringContent(JsonUtil.Serialize(post), Encoding.UTF8,
+                    Content = new StringContent(Json.Serialize(post), Encoding.UTF8,
                                     "application/json")
                 };
                 requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
@@ -141,7 +141,7 @@ namespace Forum020.Client.Redux
                 switch (result.StatusCode)
                 {
                     case HttpStatusCode.OK:
-                        var board = JsonUtil.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+                        var board = Json.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
 
                         dispatch(new GetPostsAction
                         {
@@ -184,7 +184,7 @@ namespace Forum020.Client.Redux
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.OK:
-                        var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+                        var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
 
                         dispatch(new GetPostsAction
                         {
@@ -227,7 +227,7 @@ namespace Forum020.Client.Redux
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.OK:
-                        var board = JsonUtil.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+                        var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
 
                         dispatch(new GetPostsAction
                         {

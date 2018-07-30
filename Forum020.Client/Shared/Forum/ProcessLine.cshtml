@@ -1,0 +1,26 @@
+﻿@inherits ForumAppComponent
+@using System.Text.RegularExpressions;
+@{var words = Line.Split(new[] { ' ' }, StringSplitOptions.None); }
+@foreach (var word in words)
+{
+    var regex = Regex.Match(word, @"^>>>\/(?<board>[A-Za-z]+)\/(?<id>[0-9]+)\/?$"); //board redirect
+    if (regex.Success)
+    {
+        var board = regex.Groups["board"].Value;
+        var id = regex.Groups["id"].Value;
+        <text><span class="text-link"><PostLink BoardName="@board" Content="@word" PostId="@id"></PostLink></span></text>
+    }
+    else if (Regex.IsMatch(word, @"^>>[0-9]+$")) //quote
+    {
+        var id = word.Substring(2);
+        <text><span class="text-link"><PostLink Content="@word" PostId="@id" BoardName="@State.CurrentBoard.NameShort"></PostLink></span></text>
+    }
+    else //just regular content
+    {
+        <text>@(word + " ")</text>
+    }
+}
+@functions {
+    [Parameter]
+    string Line { get; set; }
+}
