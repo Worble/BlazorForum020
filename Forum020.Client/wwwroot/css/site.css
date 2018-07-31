@@ -56,14 +56,14 @@ footer {
     border: .05rem solid #fff;
 }
 
-.text-link > .popover:hover > .popover-container,
+/*.text-link > .popover:hover > .popover-container,
 .text-link > .popover > .popover-container:hover,
 .text-link > .popover > :focus + .popover-container {
     transform: translate(0%,-90%) scale(1);
     left: 0;
     width: 100%;
     padding:0 0 0.4rem 0;
-}
+}*/
 
 /*.popover-container .popover:hover > .popover-container,
 .popover-container:hover .popover > .popover-container:hover,
@@ -71,9 +71,9 @@ footer {
     transform: translate(-41%,-100%) scale(1)
 }*/
 
-.card-body .popover{
+/*.card-body .popover{
     position:unset;
-}
+}*/
 
 .main > .toast{
     z-index: 100;
