@@ -8,6 +8,7 @@ namespace Forum020.Server.Validators
         public ThreadValidator()
         {
             RuleFor(post => post.Image).NotNull().NotEmpty().Matches(@"data:image/(?<type>.+?);base64,(?<data>.+)");
+            RuleFor(post => post.Content).Length(0, 3000);
         }
     }
 }
