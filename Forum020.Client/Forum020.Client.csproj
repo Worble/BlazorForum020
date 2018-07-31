@@ -50,13 +50,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Content Update="Shared\Forum\ProcessLine.cshtml">
+    <Content Update="Shared\Forum\PostContent\ProcessLine.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="Shared\Forum\ProcessLines.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Shared\Forum\Test.cshtml">
+    <Content Update="Shared\Forum\PostContent\ProcessLines.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Shared\Forum\PostSideMenu.cshtml">
@@ -65,7 +62,7 @@
     <Content Update="Shared\Forum\PostLink.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="Shared\Forum\PostContent.cshtml">
+    <Content Update="Shared\Forum\PostContent\PostContent.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>

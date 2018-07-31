@@ -78,3 +78,8 @@ footer {
 .main > .toast{
     z-index: 100;
 }
+
+@keyframes loading-infinite{
+    from { transform:translateX(-100%); }
+    to { transform:translateX(500%);}
+}

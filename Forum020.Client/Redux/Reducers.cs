@@ -18,7 +18,18 @@ namespace Forum020.Client.Redux
                 ThreadViewType = ThreadViewTypeReducer(state.ThreadViewType, action),
                 Content = ContentReducer(state.Content, action),
                 ErrorMessage = ErrorMessageReducer(state.ErrorMessage, action),
+                IsLoading = IsLoadingReducer(state.IsLoading, action)
             };
+        }
+
+        private static bool IsLoadingReducer(bool isLoading, IAction action)
+        {
+            switch (action)
+            {
+                case SetIsLoading a:
+                    return a.IsLoading;
+                default: return isLoading;
+            }
         }
 
         private static string ErrorMessageReducer(string content, IAction action)

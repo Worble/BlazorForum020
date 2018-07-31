@@ -133,7 +133,7 @@
     {
         Error = string.Empty;
         ButtonDisabled = true;
-        var result = await JSRuntime.Current.InvokeAsync<string>("input.uploadFile");
+        var result = await JSRuntime.Current.InvokeAsync<string>("upload.uploadFile");
         ButtonDisabled = false;
         if (result.Contains("Error: "))
         {

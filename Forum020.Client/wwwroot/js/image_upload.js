@@ -1,4 +1,4 @@
-﻿window.input = {
+﻿window.upload = {
     uploadFile: function () {
         var input = document.getElementById('file-upload');
         var file = input.files[0];

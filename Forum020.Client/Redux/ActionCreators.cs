@@ -15,6 +15,7 @@ namespace Forum020.Client.Redux
     {
         public static async Task GetBoards(Dispatcher<IAction> dispatch, HttpClient http)
         {
+            dispatch(new SetIsLoading() { IsLoading = true });
             try
             {
                 var boards = await http.GetJsonAsync<BoardDTO[]>(RoutePaths.Api + "boards");
@@ -28,6 +29,10 @@ namespace Forum020.Client.Redux
                 dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
+            finally
+            {
+                dispatch(new SetIsLoading() { IsLoading = false });
+            }
         }
 
         public static async Task GetThreads(Dispatcher<IAction> dispatch, HttpClient http, string boardName, bool clear)
@@ -36,6 +41,8 @@ namespace Forum020.Client.Redux
             {
                 dispatch(new ClearThreadsAction());
             }
+
+            dispatch(new SetIsLoading() { IsLoading = true });
 
             try
             {
@@ -51,6 +58,10 @@ namespace Forum020.Client.Redux
                 dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
+            finally
+            {
+                dispatch(new SetIsLoading() { IsLoading = false });
+            }
         }
 
         public static async Task GetPosts(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int threadId, bool clear)
@@ -59,6 +70,8 @@ namespace Forum020.Client.Redux
             {
                 dispatch(new ClearPostsAction());
             }
+
+            dispatch(new SetIsLoading() { IsLoading = true });
 
             try
             {
@@ -74,10 +87,16 @@ namespace Forum020.Client.Redux
                 dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
+            finally
+            {
+                dispatch(new SetIsLoading() { IsLoading = false });
+            }
         }
 
         public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, CreatePostDTO thread)
         {
+            dispatch(new SetIsLoading() { IsLoading = true });
+
             try
             {
                 BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
@@ -119,10 +138,16 @@ namespace Forum020.Client.Redux
                 Console.WriteLine(e);
                 throw;
             }
+            finally
+            {
+                dispatch(new SetIsLoading() { IsLoading = false });
+            }
         }
 
         public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, CreatePostDTO post)
         {
+            dispatch(new SetIsLoading() { IsLoading = true });
+
             try
             {
                 BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
@@ -164,10 +189,16 @@ namespace Forum020.Client.Redux
                 Console.WriteLine(e);
                 throw;
             }
+            finally
+            {
+                dispatch(new SetIsLoading() { IsLoading = false });
+            }
         }
 
         public static async Task DeletePost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
         {
+            dispatch(new SetIsLoading() { IsLoading = true });
+
             try
             {
                 BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
@@ -194,7 +225,7 @@ namespace Forum020.Client.Redux
 
                     case HttpStatusCode.Unauthorized:
                     case HttpStatusCode.Forbidden:
-                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post" });
+                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post." });
                         break;
 
                     default:
@@ -207,10 +238,16 @@ namespace Forum020.Client.Redux
                 dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
             }
+            finally
+            {
+                dispatch(new SetIsLoading() { IsLoading = false });
+            }
         }
 
         public static async Task DeleteImage(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
         {
+            dispatch(new SetIsLoading() { IsLoading = true });
+
             try
             {
                 BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
@@ -241,7 +278,7 @@ namespace Forum020.Client.Redux
 
                     case HttpStatusCode.Unauthorized:
                     case HttpStatusCode.Forbidden:
-                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post" });
+                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post." });
                         break;
 
                     default:
@@ -253,6 +290,10 @@ namespace Forum020.Client.Redux
             {
                 dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
+            }
+            finally
+            {
+                dispatch(new SetIsLoading() { IsLoading = false });
             }
         }
     }
