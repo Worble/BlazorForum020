@@ -2,12 +2,12 @@
 @inject HttpClient Http
 @if (DeadLink)
 {
-    <text><span style="text-decoration: line-through;color:red;">@Content</span></text>
+    <text><span style="text-decoration: line-through;color:red;">@Content</span> </text>
 }
 else
 {
     <div class="popover">
-        <a href=@Link() onmouseover="@MouseOver">@Content</a>
+        <a href=@Link onmouseover="@MouseOver">@Content</a>
         <div class="popover-container">
             @if (Board == null)
             {
@@ -40,7 +40,7 @@ else
 
     bool DeadLink { get; set; } = false;
 
-    string Link() => Board != null ? Board.NameShort + "/" +
+    string Link => Board != null ? Board.NameShort + "/" +
                           (Board.Post.IsOp ?
                           Board.Post.Id.ToString() :
                           Board.Post.ThreadId.ToString() + "#" + Board.Post.Id.ToString())

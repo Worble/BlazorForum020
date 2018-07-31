@@ -1,13 +1,13 @@
 ﻿using BlazorRedux;
 using Forum020.Shared;
 using System.Net.Http;
-using Microsoft.AspNetCore.Blazor;
 using System.Threading.Tasks;
 using System;
 using System.Net;
 using Microsoft.AspNetCore.Blazor.Browser.Http;
 using System.Text;
 using Microsoft.JSInterop;
+using System.Collections.Generic;
 
 namespace Forum020.Client.Redux
 {
@@ -15,23 +15,23 @@ namespace Forum020.Client.Redux
     {
         public static async Task GetBoards(Dispatcher<IAction> dispatch, HttpClient http)
         {
-            dispatch(new SetIsLoading() { IsLoading = true });
-            try
+            var uri = new UriBuilder(RoutePaths.Api + "boards").Uri;
+            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
+
+            switch (response.StatusCode)
             {
-                var boards = await http.GetJsonAsync<BoardDTO[]>(RoutePaths.Api + "boards");
-                dispatch(new GetBoardsAction
-                {
-                    Boards = boards
-                });
-            }
-            catch (Exception e)
-            {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                dispatch(new SetIsLoading() { IsLoading = false });
+                case HttpStatusCode.OK:
+                    var boards = Json.Deserialize<IEnumerable<BoardDTO>>(await response.Content.ReadAsStringAsync());
+
+                    dispatch(new GetBoardsAction
+                    {
+                        Boards = boards
+                    });
+                    break;
+
+                default:
+                    dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                    break;
             }
         }
 
@@ -42,25 +42,23 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearThreadsAction());
             }
 
-            dispatch(new SetIsLoading() { IsLoading = true });
+            var uri = new UriBuilder(RoutePaths.Api + boardName).Uri;
+            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
 
-            try
+            switch (response.StatusCode)
             {
-                var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName);
+                case HttpStatusCode.OK:
+                    var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
 
-                dispatch(new GetThreadsAction
-                {
-                    Board = board
-                });
-            }
-            catch (Exception e)
-            {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                dispatch(new SetIsLoading() { IsLoading = false });
+                    dispatch(new GetThreadsAction
+                    {
+                        Board = board
+                    });
+                    break;
+
+                default:
+                    dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                    break;
             }
         }
 
@@ -71,225 +69,166 @@ namespace Forum020.Client.Redux
                 dispatch(new ClearPostsAction());
             }
 
-            dispatch(new SetIsLoading() { IsLoading = true });
+            var uri = new UriBuilder(RoutePaths.Api + boardName + "/" + threadId).Uri;
+            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
 
-            try
+            switch (response.StatusCode)
             {
-                var board = await http.GetJsonAsync<BoardDTO>(RoutePaths.Api + boardName + "/" + threadId);
+                case HttpStatusCode.OK:
+                    var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
 
-                dispatch(new GetPostsAction
-                {
-                    Board = board
-                });
-            }
-            catch (Exception e)
-            {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                dispatch(new SetIsLoading() { IsLoading = false });
+                    dispatch(new GetPostsAction
+                    {
+                        Board = board
+                    });
+                    break;
+
+                default:
+                    dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                    break;
             }
         }
 
         public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, CreatePostDTO thread)
         {
-            dispatch(new SetIsLoading() { IsLoading = true });
+            var uri = new UriBuilder(RoutePaths.Api + boardName).Uri;
+            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Post, true, thread);
 
-            try
+            switch (response.StatusCode)
             {
-                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
+                case HttpStatusCode.OK:
+                    var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
 
-                var requestMessage = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = new UriBuilder(RoutePaths.Api + boardName).Uri,
-                    Content = new StringContent(Json.Serialize(thread), Encoding.UTF8,
-                                    "application/json")
-                };
-                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
-                
-                var result = await http.SendAsync(requestMessage);
+                    dispatch(new GetPostsAction
+                    {
+                        Board = board
+                    });
+                    break;
 
-                switch (result.StatusCode)
-                {
-                    case HttpStatusCode.OK:
-                        var board = Json.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+                case HttpStatusCode.BadRequest:
+                    dispatch(new SetErrorMessage() { Message = await response.Content.ReadAsStringAsync() });
+                    break;
 
-                        dispatch(new GetPostsAction
-                        {
-                            Board = board
-                        });
-                        break;
-
-                    case HttpStatusCode.BadRequest:
-                        dispatch(new SetErrorMessage() { Message = await result.Content.ReadAsStringAsync() });
-                        break;
-
-                    default:
-                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                        break;
-                }                
-            }
-            catch (Exception e)
-            {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                Console.WriteLine(e);
-                throw;
-            }
-            finally
-            {
-                dispatch(new SetIsLoading() { IsLoading = false });
+                default:
+                    dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                    break;
             }
         }
 
         public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, CreatePostDTO post)
         {
-            dispatch(new SetIsLoading() { IsLoading = true });
+            var uri = new UriBuilder(RoutePaths.Api + boardName + "/" + thread).Uri;
+            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Post, true, post);
 
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+
+                    dispatch(new GetPostsAction
+                    {
+                        Board = board
+                    });
+                    break;
+
+                case HttpStatusCode.BadRequest:
+                    dispatch(new SetErrorMessage() { Message = await response.Content.ReadAsStringAsync() });
+                    break;
+
+                default:
+                    dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                    break;
+            }
+        }
+
+        public static async Task DeletePost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
+        {
+            var uri = new UriBuilder(RoutePaths.Api + boardName + "/delete/" + postId).Uri;
+            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Delete, true);
+
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+
+                    dispatch(new GetPostsAction
+                    {
+                        Board = board
+                    });
+                    break;
+
+                case HttpStatusCode.Unauthorized:
+                case HttpStatusCode.Forbidden:
+                    dispatch(new SetErrorMessage() { Message = "You are not the owner of this post." });
+                    break;
+
+                default:
+                    dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                    break;
+            }
+        }
+
+        public static async Task DeleteImage(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
+        {
+            var uri = new UriBuilder(RoutePaths.Api + boardName + "/delete-image/" + postId).Uri;
+            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Delete, true);
+
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
+
+                    dispatch(new GetPostsAction
+                    {
+                        Board = board
+                    });
+                    break;
+
+                case HttpStatusCode.BadRequest:
+                    dispatch(new SetErrorMessage() { Message = await response.Content.ReadAsStringAsync() });
+                    break;
+
+                case HttpStatusCode.Unauthorized:
+                case HttpStatusCode.Forbidden:
+                    dispatch(new SetErrorMessage() { Message = "You are not the owner of this post." });
+                    break;
+
+                default:
+                    dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
+                    break;
+            }           
+        }
+
+        private async static Task<HttpResponseMessage> PerformHttpRequest(Uri uri, HttpClient http, Dispatcher<IAction> dispatch, HttpMethod method, bool requiresCredentials = false, object content = null)
+        {
+            dispatch(new SetIsLoading() { IsLoading = true });
             try
             {
-                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
-
                 var requestMessage = new HttpRequestMessage
                 {
-                    Method = HttpMethod.Post,
-                    RequestUri = new UriBuilder(RoutePaths.Api + boardName + "/" + thread).Uri,
-                    Content = new StringContent(Json.Serialize(post), Encoding.UTF8,
-                                    "application/json")
+                    Method = method,
+                    RequestUri = uri
                 };
-                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
 
-                var result = await http.SendAsync(requestMessage);
-
-                switch (result.StatusCode)
+                if(content != null)
                 {
-                    case HttpStatusCode.OK:
-                        var board = Json.Deserialize<BoardDTO>(await result.Content.ReadAsStringAsync());
+                    requestMessage.Content = new StringContent(Json.Serialize(content), Encoding.UTF8,
+                        "application/json");
+                }
 
-                        dispatch(new GetPostsAction
-                        {
-                            Board = board
-                        });
-                        break;
+                if (requiresCredentials)
+                {
+                    BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
+                    requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
+                }
 
-                    case HttpStatusCode.BadRequest:
-                        dispatch(new SetErrorMessage() { Message = await result.Content.ReadAsStringAsync() });
-                        break;
-
-                    default:
-                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                        break;
-                }                
+                return await http.SendAsync(requestMessage);
             }
             catch (Exception e)
             {
                 dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                 Console.WriteLine(e);
                 throw;
-            }
-            finally
-            {
-                dispatch(new SetIsLoading() { IsLoading = false });
-            }
-        }
-
-        public static async Task DeletePost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
-        {
-            dispatch(new SetIsLoading() { IsLoading = true });
-
-            try
-            {
-                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
-
-                var requestMessage = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Delete,
-                    RequestUri = new UriBuilder(RoutePaths.Api + boardName + "/delete/" + postId).Uri
-                };
-                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
-
-                var response = await http.SendAsync(requestMessage);
-
-                switch (response.StatusCode)
-                {
-                    case HttpStatusCode.OK:
-                        var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
-
-                        dispatch(new GetPostsAction
-                        {
-                            Board = board
-                        });
-                        break;
-
-                    case HttpStatusCode.Unauthorized:
-                    case HttpStatusCode.Forbidden:
-                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post." });
-                        break;
-
-                    default:
-                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                        break;
-                }
-            }
-            catch(Exception e)
-            {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                dispatch(new SetIsLoading() { IsLoading = false });
-            }
-        }
-
-        public static async Task DeleteImage(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
-        {
-            dispatch(new SetIsLoading() { IsLoading = true });
-
-            try
-            {
-                BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
-
-                var requestMessage = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Delete,
-                    RequestUri = new UriBuilder(RoutePaths.Api + boardName + "/delete-image/" + postId).Uri
-                };
-                requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
-
-                var response = await http.SendAsync(requestMessage);
-
-                switch (response.StatusCode)
-                {
-                    case HttpStatusCode.OK:
-                        var board = Json.Deserialize<BoardDTO>(await response.Content.ReadAsStringAsync());
-
-                        dispatch(new GetPostsAction
-                        {
-                            Board = board
-                        });
-                        break;
-
-                    case HttpStatusCode.BadRequest:
-                        dispatch(new SetErrorMessage() { Message = await response.Content.ReadAsStringAsync() });
-                        break;
-
-                    case HttpStatusCode.Unauthorized:
-                    case HttpStatusCode.Forbidden:
-                        dispatch(new SetErrorMessage() { Message = "You are not the owner of this post." });
-                        break;
-
-                    default:
-                        dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                        break;
-                }                
-            }
-            catch (Exception e)
-            {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                Console.WriteLine(e);
             }
             finally
             {
