@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Blazor.Browser.Http;
 using System.Text;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
+using Forum020.Client.Shared;
 
 namespace Forum020.Client.Redux
 {
@@ -16,7 +17,7 @@ namespace Forum020.Client.Redux
         public static async Task GetBoards(Dispatcher<IAction> dispatch, HttpClient http)
         {
             var uri = new UriBuilder(RoutePaths.Api + "boards").Uri;
-            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
+            var response = await HttpHelper.PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
 
             switch (response.StatusCode)
             {
@@ -43,7 +44,7 @@ namespace Forum020.Client.Redux
             }
 
             var uri = new UriBuilder(RoutePaths.Api + boardName).Uri;
-            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
+            var response = await HttpHelper.PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
 
             switch (response.StatusCode)
             {
@@ -70,7 +71,7 @@ namespace Forum020.Client.Redux
             }
 
             var uri = new UriBuilder(RoutePaths.Api + boardName + "/" + threadId).Uri;
-            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
+            var response = await HttpHelper.PerformHttpRequest(uri, http, dispatch, HttpMethod.Get);
 
             switch (response.StatusCode)
             {
@@ -92,7 +93,7 @@ namespace Forum020.Client.Redux
         public static async Task PostThread(Dispatcher<IAction> dispatch, HttpClient http, string boardName, CreatePostDTO thread)
         {
             var uri = new UriBuilder(RoutePaths.Api + boardName).Uri;
-            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Post, true, thread);
+            var response = await HttpHelper.PerformHttpRequest(uri, http, dispatch, HttpMethod.Post, true, thread);
 
             switch (response.StatusCode)
             {
@@ -118,7 +119,7 @@ namespace Forum020.Client.Redux
         public static async Task PostPost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int thread, CreatePostDTO post)
         {
             var uri = new UriBuilder(RoutePaths.Api + boardName + "/" + thread).Uri;
-            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Post, true, post);
+            var response = await HttpHelper.PerformHttpRequest(uri, http, dispatch, HttpMethod.Post, true, post);
 
             switch (response.StatusCode)
             {
@@ -144,7 +145,7 @@ namespace Forum020.Client.Redux
         public static async Task DeletePost(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
         {
             var uri = new UriBuilder(RoutePaths.Api + boardName + "/delete/" + postId).Uri;
-            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Delete, true);
+            var response = await HttpHelper.PerformHttpRequest(uri, http, dispatch, HttpMethod.Delete, true);
 
             switch (response.StatusCode)
             {
@@ -171,7 +172,7 @@ namespace Forum020.Client.Redux
         public static async Task DeleteImage(Dispatcher<IAction> dispatch, HttpClient http, string boardName, int postId)
         {
             var uri = new UriBuilder(RoutePaths.Api + boardName + "/delete-image/" + postId).Uri;
-            var response = await PerformHttpRequest(uri, http, dispatch, HttpMethod.Delete, true);
+            var response = await HttpHelper.PerformHttpRequest(uri, http, dispatch, HttpMethod.Delete, true);
 
             switch (response.StatusCode)
             {
@@ -197,43 +198,6 @@ namespace Forum020.Client.Redux
                     dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
                     break;
             }           
-        }
-
-        private async static Task<HttpResponseMessage> PerformHttpRequest(Uri uri, HttpClient http, Dispatcher<IAction> dispatch, HttpMethod method, bool requiresCredentials = false, object content = null)
-        {
-            dispatch(new SetIsLoading() { IsLoading = true });
-            try
-            {
-                var requestMessage = new HttpRequestMessage
-                {
-                    Method = method,
-                    RequestUri = uri
-                };
-
-                if(content != null)
-                {
-                    requestMessage.Content = new StringContent(Json.Serialize(content), Encoding.UTF8,
-                        "application/json");
-                }
-
-                if (requiresCredentials)
-                {
-                    BrowserHttpMessageHandler.DefaultCredentials = FetchCredentialsOption.Include;
-                    requestMessage.Properties.Add("BrowserHttpMessageHandler.FetchArgs", new { mode = "cors" });
-                }
-
-                return await http.SendAsync(requestMessage);
-            }
-            catch (Exception e)
-            {
-                dispatch(new SetErrorMessage() { Message = "Whoops! Something went wrong. Please try again later." });
-                Console.WriteLine(e);
-                throw;
-            }
-            finally
-            {
-                dispatch(new SetIsLoading() { IsLoading = false });
-            }
         }
     }
 }

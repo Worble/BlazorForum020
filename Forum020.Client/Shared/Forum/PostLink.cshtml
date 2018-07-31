@@ -1,5 +1,7 @@
 ﻿@inherits ForumAppComponent
 @inject HttpClient Http
+@using Microsoft.JSInterop;
+
 @if (DeadLink)
 {
     <text><span style="text-decoration: line-through;color:red;">@Content</span> </text>
@@ -50,13 +52,18 @@ else
 
     protected async Task MouseOver()
     {
-        try
+        var uri = new UriBuilder(RoutePaths.Api + BoardName + "/get-link/" + PostId).Uri;
+        var response = await HttpHelper.PerformHttpRequest(uri, Http, Store.Dispatch, HttpMethod.Get);
+        switch (response.StatusCode)
         {
-            Board = await Http.GetJsonAsync<BoardLinkDTO>(RoutePaths.Api + BoardName + "/get-link/" + PostId);
-        }
-        catch (Exception)
-        {
-            DeadLink = true;
+            case System.Net.HttpStatusCode.OK:
+                Board = Json.Deserialize<BoardLinkDTO>(await response.Content.ReadAsStringAsync());
+                DeadLink = false;
+                break;
+
+            default:
+                DeadLink = true;
+                break;
         }
     }
 }
