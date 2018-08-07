@@ -9,5 +9,6 @@ namespace Forum020.Domain.UnitOfWork
         Task SaveChangesAsync();
         IBoardRepository BoardRepository { get; }
         IPostRepository PostRepository { get; }
+        IReportRepository ReportRepository { get; }
     }
 }

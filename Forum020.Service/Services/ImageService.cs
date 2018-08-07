@@ -31,14 +31,9 @@ namespace Forum020.Service.Services
 
         public PostDTO SaveImage(PostDTO post)
         {
-            var regex = Regex.Match(post.Image, @"data:image/(?<type>.+?);base64,(?<data>.+)");
+            var binData = GetBinData(post.Image);
 
-            if (!regex.Success) return post;
-
-            var base64 = regex.Groups["data"].Value;
-            var binData = Convert.FromBase64String(base64);
-
-            if (binData.Length / 1048576 > 3)
+            if (binData == null || binData.Length / 1048576 > 3)
             {
                 throw new Exception();
             }
@@ -93,9 +88,8 @@ namespace Forum020.Service.Services
 
         public async Task<bool> IsImageUniqueToThread(string imageData, string boardName, int threadId)
         {
-            var regex = Regex.Match(imageData, @"data:image/(?<type>.+?);base64,(?<data>.+)");
-            var base64 = regex.Groups["data"].Value;
-            var binData = Convert.FromBase64String(base64);
+            var binData = GetBinData(imageData);
+
             string checksum;
 
             using (var md5 = MD5.Create())
@@ -130,6 +124,16 @@ namespace Forum020.Service.Services
             var post = await _work.PostRepository.GetPost(boardName, postId);
             return !string.IsNullOrEmpty(post.Post.ThumbnailUrl) && 
                 !string.IsNullOrEmpty(post.Post.ImageUrl);
+        }
+
+        private byte[] GetBinData(string imageData)
+        {
+            var regex = Regex.Match(imageData, @"data:image/(?<type>.+?);base64,(?<data>.+)");
+
+            var base64 = regex.Groups["data"].Value;
+            var binData = Convert.FromBase64String(base64);
+
+            return binData;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Forum020.Domain.UnitOfWork
         private bool _disposed = false;
         private IBoardRepository _boardRepository;
         private IPostRepository _postRepository;
+        private IReportRepository _reportRepsitory;
 
         public UnitOfWork(ForumContext context)
         {
@@ -21,6 +22,8 @@ namespace Forum020.Domain.UnitOfWork
         public IBoardRepository BoardRepository => _boardRepository ?? (_boardRepository = new BoardRepository(_context));
 
         public IPostRepository PostRepository => _postRepository ?? (_postRepository = new PostRepository(_context));
+
+        public IReportRepository ReportRepository => _reportRepsitory ?? (_reportRepsitory = new ReportRepository(_context));
 
         public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
 

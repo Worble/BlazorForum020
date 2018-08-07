@@ -10,6 +10,7 @@ namespace Forum020.Domain.Repositories.Interfaces
         Task<BoardDTO> GetAllPostsForThread(string boardName, int thread);
         Task<Post> PostThread(string boardName, PostDTO thread);
         Task<Post> PostPost(string boardName, int threadId, PostDTO post);
+        Task ReportPost(string boardName, int postId, int reportType);
         Task<bool> IsChecksumUnique(string checksum, string boardName, int threadId);
         Task<BoardLinkDTO> GetPost(string boardName, int postId);
         Task<Post> DeletePost(string boardName, int postId);

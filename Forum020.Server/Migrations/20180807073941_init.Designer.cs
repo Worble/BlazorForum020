@@ -4,20 +4,22 @@ using Forum020.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Forum020.Server.Migrations
 {
     [DbContext(typeof(ForumContext))]
-    [Migration("20180605104217_added images")]
-    partial class addedimages
+    [Migration("20180807073941_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.1.0-rtm-30799");
+                .HasAnnotation("ProductVersion", "2.1.1-rtm-30846")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Forum020.Data.Entities.Board", b =>
                 {
@@ -69,7 +71,7 @@ namespace Forum020.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Config");
+                    b.ToTable("Configs");
                 });
 
             modelBuilder.Entity("Forum020.Data.Entities.Post", b =>
@@ -81,8 +83,7 @@ namespace Forum020.Server.Migrations
 
                     b.Property<DateTime?>("BumpDate");
 
-                    b.Property<string>("Content")
-                        .IsRequired();
+                    b.Property<string>("Content");
 
                     b.Property<DateTime>("DateCreated");
 
@@ -103,6 +104,9 @@ namespace Forum020.Server.Migrations
 
                     b.Property<string>("ThumbnailUrl");
 
+                    b.Property<string>("UserIdentifier")
+                        .IsRequired();
+
                     b.HasKey("Id");
 
                     b.HasIndex("BoardId");
@@ -113,6 +117,47 @@ namespace Forum020.Server.Migrations
                         .IsUnique();
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Forum020.Data.Entities.PostReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("AdditionalInformation");
+
+                    b.Property<DateTime>("DateCreated");
+
+                    b.Property<DateTime?>("DateEdited");
+
+                    b.Property<int>("PostId");
+
+                    b.Property<int>("ReportTypeId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ReportTypeId");
+
+                    b.ToTable("PostReports");
+                });
+
+            modelBuilder.Entity("Forum020.Data.Entities.ReportType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("DateCreated");
+
+                    b.Property<DateTime?>("DateEdited");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReportTypes");
                 });
 
             modelBuilder.Entity("Forum020.Data.Entities.Board", b =>
@@ -132,7 +177,21 @@ namespace Forum020.Server.Migrations
 
                     b.HasOne("Forum020.Data.Entities.Post", "Thread")
                         .WithMany("Posts")
-                        .HasForeignKey("ThreadId");
+                        .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Forum020.Data.Entities.PostReport", b =>
+                {
+                    b.HasOne("Forum020.Data.Entities.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Forum020.Data.Entities.ReportType", "ReportType")
+                        .WithMany()
+                        .HasForeignKey("ReportTypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

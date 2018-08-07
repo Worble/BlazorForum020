@@ -1,0 +1,35 @@
+﻿@model Forum020.Admin.ViewModels.ReportsViewModel
+
+@if (Model.Reports.Count() < 1)
+{
+    <h2>No Reports!</h2>
+
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <td>Board</td>
+                <td>Post Id</td>
+                <td>Post Image</td>
+                <td>Post Content</td>
+                <td>Report Type</td>
+                <td>Report Reason</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in Model.Reports)
+            {
+                <tr>
+                    <td>@report.Post.Board.Name</td>
+                    <td>@report.Post.IdEffective</td>
+                    <td>@report.Post.ImageUrl</td>
+                    <td>@report.Post.Content</td>
+                    <td>@report.ReportType.Name</td>
+                    <td>@report.AdditionalInformation</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

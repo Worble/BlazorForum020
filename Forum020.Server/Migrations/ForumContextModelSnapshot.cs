@@ -69,7 +69,7 @@ namespace Forum020.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Config");
+                    b.ToTable("Configs");
                 });
 
             modelBuilder.Entity("Forum020.Data.Entities.Post", b =>
@@ -117,6 +117,47 @@ namespace Forum020.Server.Migrations
                     b.ToTable("Posts");
                 });
 
+            modelBuilder.Entity("Forum020.Data.Entities.PostReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("AdditionalInformation");
+
+                    b.Property<DateTime>("DateCreated");
+
+                    b.Property<DateTime?>("DateEdited");
+
+                    b.Property<int>("PostId");
+
+                    b.Property<int>("ReportTypeId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ReportTypeId");
+
+                    b.ToTable("PostReports");
+                });
+
+            modelBuilder.Entity("Forum020.Data.Entities.ReportType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("DateCreated");
+
+                    b.Property<DateTime?>("DateEdited");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReportTypes");
+                });
+
             modelBuilder.Entity("Forum020.Data.Entities.Board", b =>
                 {
                     b.HasOne("Forum020.Data.Entities.Config", "Config")
@@ -135,6 +176,19 @@ namespace Forum020.Server.Migrations
                     b.HasOne("Forum020.Data.Entities.Post", "Thread")
                         .WithMany("Posts")
                         .HasForeignKey("ThreadId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Forum020.Data.Entities.PostReport", b =>
+                {
+                    b.HasOne("Forum020.Data.Entities.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Forum020.Data.Entities.ReportType", "ReportType")
+                        .WithMany()
+                        .HasForeignKey("ReportTypeId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

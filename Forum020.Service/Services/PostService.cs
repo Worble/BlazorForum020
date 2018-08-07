@@ -23,11 +23,11 @@ namespace Forum020.Service.Services
         public async Task<BoardDTO> DeleteImage(string boardName, int postId)
         {
             var post = await _work.PostRepository.DeleteImage(boardName, postId);
-            await _work.SaveChangesAsync();
             if (string.IsNullOrEmpty(post.CurrentThread.Content))
             {
                 return await DeletePost(boardName, postId);
             }
+            await _work.SaveChangesAsync();
             await _cache.SetObjectAsync(RoutePaths.SinglePost(boardName, postId), post);
 
             var board = await _work.PostRepository.GetAllPostsForThread(boardName, post.CurrentThread.ThreadId.Value);

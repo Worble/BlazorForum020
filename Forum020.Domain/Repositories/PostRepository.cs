@@ -265,5 +265,15 @@ namespace Forum020.Domain.Repositories
                 }).FirstOrDefault(y => y.Id == postId && !y.IsArchived)
             }).FirstOrDefaultAsync(e => e.NameShort == boardName);
         }
+
+        public async Task ReportPost(string boardName, int postId, int reportType)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(e => e.Board.NameShort == boardName && e.IdEffective == postId);
+            _context.PostReports.Add(new PostReport()
+                {
+                    PostId = post.Id,
+                    ReportTypeId = reportType
+                });
+        }
     }
 }

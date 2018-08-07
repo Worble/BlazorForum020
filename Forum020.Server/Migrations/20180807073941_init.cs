@@ -9,20 +9,34 @@ namespace Forum020.Server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Config",
+                name: "Configs",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     DateCreated = table.Column<DateTime>(nullable: false),
                     DateEdited = table.Column<DateTime>(nullable: true),
-                    BoardId = table.Column<int>(nullable: false),
-                    MaximumThreadCount = table.Column<int>(nullable: false, defaultValue: 10),
+                    MaximumThreadCount = table.Column<int>(nullable: false, defaultValue: 12),
                     MaximumReplyCount = table.Column<int>(nullable: false, defaultValue: 100)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Config", x => x.Id);
+                    table.PrimaryKey("PK_Configs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReportTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateEdited = table.Column<DateTime>(nullable: true),
+                    Name = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReportTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -41,9 +55,9 @@ namespace Forum020.Server.Migrations
                 {
                     table.PrimaryKey("PK_Boards", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Boards_Config_ConfigId",
+                        name: "FK_Boards_Configs_ConfigId",
                         column: x => x.ConfigId,
-                        principalTable: "Config",
+                        principalTable: "Configs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -61,9 +75,13 @@ namespace Forum020.Server.Migrations
                     IdEffective = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     IsOp = table.Column<bool>(nullable: false),
-                    Content = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(nullable: true),
                     BumpDate = table.Column<DateTime>(nullable: true),
-                    IsArchived = table.Column<bool>(nullable: false)
+                    IsArchived = table.Column<bool>(nullable: false),
+                    ImageUrl = table.Column<string>(nullable: true),
+                    ThumbnailUrl = table.Column<string>(nullable: true),
+                    ImageChecksum = table.Column<string>(nullable: true),
+                    UserIdentifier = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,7 +97,36 @@ namespace Forum020.Server.Migrations
                         column: x => x.ThreadId,
                         principalTable: "Posts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateEdited = table.Column<DateTime>(nullable: true),
+                    PostId = table.Column<int>(nullable: false),
+                    ReportTypeId = table.Column<int>(nullable: false),
+                    AdditionalInformation = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostReports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PostReports_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PostReports_ReportTypes_ReportTypeId",
+                        column: x => x.ReportTypeId,
+                        principalTable: "ReportTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -101,6 +148,16 @@ namespace Forum020.Server.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_PostReports_PostId",
+                table: "PostReports",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostReports_ReportTypeId",
+                table: "PostReports",
+                column: "ReportTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_BoardId",
                 table: "Posts",
                 column: "BoardId");
@@ -115,46 +172,24 @@ namespace Forum020.Server.Migrations
                 table: "Posts",
                 columns: new[] { "IdEffective", "BoardId" },
                 unique: true);
-
-            migrationBuilder.Sql(@"
-                CREATE OR REPLACE FUNCTION public.make_board_seq()
-                 RETURNS trigger
-                 LANGUAGE plpgsql
-                AS $function$
-                begin
-                  execute format('create sequence board_seq_%s', NEW.""Id"");
-                  return NEW;
-                            end
-                $function$");
-
-            migrationBuilder.Sql(@"
-                CREATE TRIGGER make_board_seq AFTER INSERT ON ""Boards"" FOR EACH ROW EXECUTE PROCEDURE make_board_seq();");
-
-            migrationBuilder.Sql(@"
-                CREATE OR REPLACE FUNCTION public.fill_in_post_seq()
-                 RETURNS trigger
-                 LANGUAGE plpgsql
-                AS $function$
-                begin
-                  NEW.""IdEffective"" := nextval('board_seq_' || NEW.""BoardId"");
-                  RETURN NEW;
-                            end
-                $function$");
-
-            migrationBuilder.Sql(@"
-                CREATE TRIGGER fill_in_post_seq BEFORE INSERT ON ""Posts"" FOR EACH ROW EXECUTE PROCEDURE fill_in_post_seq();");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "PostReports");
+
+            migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "ReportTypes");
 
             migrationBuilder.DropTable(
                 name: "Boards");
 
             migrationBuilder.DropTable(
-                name: "Config");
+                name: "Configs");
         }
     }
 }

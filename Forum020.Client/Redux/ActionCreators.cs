@@ -4,8 +4,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System;
 using System.Net;
-using Microsoft.AspNetCore.Blazor.Browser.Http;
-using System.Text;
 using Microsoft.JSInterop;
 using System.Collections.Generic;
 using Forum020.Client.Shared;

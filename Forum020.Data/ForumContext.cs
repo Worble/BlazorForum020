@@ -13,6 +13,9 @@ namespace Forum020.Data
 
         public DbSet<Board> Boards { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Config> Configs { get; set; }
+        public DbSet<ReportType> ReportTypes { get; set; }
+        public DbSet<PostReport> PostReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -37,6 +40,15 @@ namespace Forum020.Data
             //Config
             builder.Entity<Config>().Property(e => e.MaximumReplyCount).HasDefaultValue(100);
             builder.Entity<Config>().Property(e => e.MaximumThreadCount).HasDefaultValue(12);
+
+            //Report
+            builder.Entity<ReportType>().Property(e => e.Name).IsRequired();
+
+            //PostReport
+            builder.Entity<PostReport>().HasOne(e => e.Post);
+            builder.Entity<PostReport>().HasOne(e => e.ReportType);
+            builder.Entity<PostReport>().Property(e => e.PostId).IsRequired();
+            builder.Entity<PostReport>().Property(e => e.ReportTypeId).IsRequired();
         }
 
         public async override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

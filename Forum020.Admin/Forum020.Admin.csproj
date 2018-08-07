@@ -20,7 +20,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.0" />
+    <PackageReference Include="npgsql.entityframeworkcore.postgresql" Version="2.1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,10 +32,13 @@
     <Content Update="Views\Account\Login.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Reports\Index.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Reports\" />
+    <ProjectReference Include="..\Forum020.Service\Forum020.Service.csproj" />
   </ItemGroup>
 
 </Project>

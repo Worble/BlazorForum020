@@ -22,15 +22,17 @@ namespace Forum020.Server.Controllers
     {
         private readonly IPostService _postService;
         private readonly IImageService _imageService;
+        private readonly IReportService _reportService;
         private readonly IHostingEnvironment _env;
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
 
-        public PostController(IPostService postService, IHostingEnvironment env, IImageService imageService, IConfiguration configuration)
+        public PostController(IPostService postService, IHostingEnvironment env, IImageService imageService, IConfiguration configuration, IReportService reportService)
         {
             _postService = postService;
             _imageService = imageService;
             _env = env;
             _config = configuration;
+            _reportService = reportService;
         }
 
         [HttpGet]
@@ -140,6 +142,13 @@ namespace Forum020.Server.Controllers
             await _imageService.DeleteImage(boardName, postId);
             var board = await _postService.DeleteImage(boardName, postId);
             return board;
+        }
+        
+        [HttpPost("report/{postId}")]
+        public async Task<IActionResult> ReportPost(string boardName, int postId, int reportType)
+        {
+            await _reportService.ReportPost(boardName, postId, reportType);
+            return Ok();
         }
 
         #region helper methods

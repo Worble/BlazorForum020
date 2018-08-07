@@ -33,33 +33,42 @@ namespace Forum020.Data
                         Board = board,
                         Content = "Thread 1",
                         IsOp = true,
-                        UserIdentifier = "TestUser"
+                        UserIdentifier = "TestUser",
+                        Posts = new List<Post>()
+                        {
+                            new Post()
+                            {
+                                Content = "Response to thread 1",
+                                Board = board,
+                                UserIdentifier = "TestUser"
+                            }
+                        }
                     };
                     context.Add(post);
                     context.SaveChanges();
 
-                    Post post4 = new Post()
-                    {
-                        Content = "Response to thread 1",
-                        Thread = post,
-                        Board = board,
-                        UserIdentifier = "TestUser"
-                    };
-                    context.Add(post4);
-                    context.SaveChanges();
+                    //post = new Post()
+                    //{
+                    //    Content = "Response to thread 1",
+                    //    Thread = post,
+                    //    Board = board,
+                    //    UserIdentifier = "TestUser"
+                    //};
+                    //context.Add(post);
+                    //context.SaveChanges();
 
-                    var post2 = new Post()
+                    post = new Post()
                     {
                         Board = board,
                         Content = "Thread 2",
                         IsOp = true,
                         UserIdentifier = "TestUser"
                     };
-                    context.Add(post2);
+                    context.Add(post);
                     context.SaveChanges();
 
                     //board 2
-                    var board2 = new Board()
+                    board = new Board()
                     {
                         Name = "Test",
                         NameShort = "tst",
@@ -68,28 +77,36 @@ namespace Forum020.Data
 
                         }
                     };
-                    context.Add(board2);
+                    context.Add(board);
                     context.SaveChanges();
 
-                    var post3 = new Post()
+                    post = new Post()
                     {
-                        Board = board2,
+                        Board = board,
                         Content = "Thread 3",
                         IsOp = true,
                         UserIdentifier = "TestUser"
                     };
-                    context.Add(post3);
+                    context.Add(post);
                     context.SaveChanges();
 
 
-                    var post5 = new Post()
+                    post = new Post()
                     {
-                        Board = board2,
+                        Board = board,
                         Content = "Thread 4",
                         IsOp = true,
                         UserIdentifier = "TestUser"
                     };
-                    context.Add(post5);
+                    context.Add(post);
+                    context.SaveChanges();
+
+                    var reportType = new ReportType() { Name = "Illegal Content" };
+                    context.Add(reportType);
+                    context.SaveChanges();
+
+                    reportType = new ReportType() { Name = "Rule Violation" };
+                    context.Add(reportType);
                     context.SaveChanges();
 
                     context.Database.CommitTransaction();

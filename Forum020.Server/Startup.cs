@@ -110,6 +110,7 @@ namespace Forum020.Server
             services.AddTransient<IBoardService, BoardService>();
             services.AddTransient<IPostService, PostService>();
             services.AddTransient<IImageService, ImageService>();
+            services.AddTransient<IReportService, ReportService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
